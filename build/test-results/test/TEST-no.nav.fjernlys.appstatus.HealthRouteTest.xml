@@ -1,0 +1,44 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testsuite name="no.nav.fjernlys.appstatus.HealthRouteTest" tests="2" skipped="0" failures="0" errors="0" timestamp="2024-07-10T07:47:47" hostname="deviancies-2JTW2R" time="0.439">
+  <properties/>
+  <testcase name="isReady Test" classname="no.nav.fjernlys.appstatus.HealthRouteTest" time="0.433"/>
+  <testcase name="isAlive Test" classname="no.nav.fjernlys.appstatus.HealthRouteTest" time="0.006"/>
+  <system-out><![CDATA[2024-07-10 09:47:47.490 [Test worker @coroutine#1] TRACE i.ktor.client.plugins.HttpPlainText - Adding Accept-Charset=UTF-8 to http:///internal/isready
+2024-07-10 09:47:47.529 [DefaultDispatcher-worker-1 @call-context#2] INFO  ktor.test - No ktor.deployment.watch patterns specified, automatic reload is not active.
+2024-07-10 09:47:47.732 [DefaultDispatcher-worker-1 @call-context#2] INFO  ktor.test - Application started in 0.208 seconds.
+2024-07-10 09:47:47.733 [DefaultDispatcher-worker-3 @coroutine#4] INFO  ktor.test - Responding at http://localhost:80
+2024-07-10 09:47:47.733 [DefaultDispatcher-worker-3 @coroutine#4] INFO  ktor.test - Responding at https://localhost:443
+2024-07-10 09:47:47.753 [DefaultDispatcher-worker-1 @request#2] TRACE io.ktor.routing.Routing - Trace for [internal, isready]
+/, segment:0 -> SUCCESS @ /
+  /internal, segment:1 -> SUCCESS @ /internal
+    /internal/isalive, segment:1 -> FAILURE "Selector didn't match" @ /internal/isalive
+    /internal/isready, segment:2 -> SUCCESS @ /internal/isready
+      /internal/isready/(method:GET), segment:2 -> SUCCESS @ /internal/isready/(method:GET)
+Matched routes:
+  "" -> "internal" -> "isready" -> "(method:GET)"
+Route resolve result:
+  SUCCESS @ /internal/isready/(method:GET)
+2024-07-10 09:47:47.773 [Test worker @coroutine#1] TRACE i.k.client.plugins.HttpCallValidator - Validating response for request http://localhost/internal/isready
+2024-07-10 09:47:47.774 [Test worker @coroutine#1] TRACE i.k.c.p.DefaultResponseValidation - Skipping default response validation for http://localhost/internal/isready
+2024-07-10 09:47:47.781 [Test worker @coroutine#1] TRACE i.k.c.plugins.defaultTransformers - Transformed with default transformers response body for http://localhost/internal/isready to class io.ktor.utils.io.core.ByteReadPacket
+2024-07-10 09:47:47.783 [Test worker @coroutine#10] TRACE i.ktor.client.plugins.HttpPlainText - Adding Accept-Charset=UTF-8 to http:///internal/isalive
+2024-07-10 09:47:47.784 [DefaultDispatcher-worker-2 @call-context#11] INFO  ktor.test - No ktor.deployment.watch patterns specified, automatic reload is not active.
+2024-07-10 09:47:47.785 [DefaultDispatcher-worker-2 @call-context#11] INFO  ktor.test - Application started in 0.001 seconds.
+2024-07-10 09:47:47.785 [DefaultDispatcher-worker-1 @coroutine#13] INFO  ktor.test - Responding at http://localhost:80
+2024-07-10 09:47:47.785 [DefaultDispatcher-worker-1 @coroutine#13] INFO  ktor.test - Responding at https://localhost:443
+2024-07-10 09:47:47.785 [DefaultDispatcher-worker-2 @request#11] TRACE io.ktor.routing.Routing - Trace for [internal, isalive]
+/, segment:0 -> SUCCESS @ /
+  /internal, segment:1 -> SUCCESS @ /internal
+    /internal/isalive, segment:2 -> SUCCESS @ /internal/isalive
+      /internal/isalive/(method:GET), segment:2 -> SUCCESS @ /internal/isalive/(method:GET)
+    /internal/isready, segment:1 -> FAILURE "Selector didn't match" @ /internal/isready
+Matched routes:
+  "" -> "internal" -> "isalive" -> "(method:GET)"
+Route resolve result:
+  SUCCESS @ /internal/isalive/(method:GET)
+2024-07-10 09:47:47.787 [Test worker @coroutine#10] TRACE i.k.client.plugins.HttpCallValidator - Validating response for request http://localhost/internal/isalive
+2024-07-10 09:47:47.787 [Test worker @coroutine#10] TRACE i.k.c.p.DefaultResponseValidation - Skipping default response validation for http://localhost/internal/isalive
+2024-07-10 09:47:47.787 [Test worker @coroutine#10] TRACE i.k.c.plugins.defaultTransformers - Transformed with default transformers response body for http://localhost/internal/isalive to class io.ktor.utils.io.core.ByteReadPacket
+]]></system-out>
+  <system-err><![CDATA[]]></system-err>
+</testsuite>

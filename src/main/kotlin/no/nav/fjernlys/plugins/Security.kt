@@ -1,4 +1,4 @@
-package example.com.plugins
+package no.nav.fjernlys.plugins
 
 import com.auth0.jwt.JWT
 import com.auth0.jwt.algorithms.Algorithm

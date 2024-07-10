@@ -7,7 +7,7 @@ plugins {
     id("io.ktor.plugin") version "2.3.12"
 }
 
-group = "example.com"
+group = "no.nav.fjernlys"
 version = "0.0.1"
 
 application {

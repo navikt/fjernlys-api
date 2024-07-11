@@ -4,9 +4,9 @@ import java.net.URL
 
 class NaisEnvironment(
     val database: Database = Database(),
-    val security: Security = Security(),
+    //val security: Security = Security(),
 
-    cluster: String = getEnvVar("NAIS_CLUSTER_NAME")
+    //cluster: String = getEnvVar("NAIS_CLUSTER_NAME")
 ) {
     companion object {
         enum class Environment {
@@ -18,17 +18,17 @@ class NaisEnvironment(
                 ?: throw IllegalStateException("Ukjent miljø $cluster")
     }
 
-    val miljø = hentMiljø(cluster)
+   // val miljø = hentMiljø(cluster)
 }
 
 class Database(
-    val host: String = getEnvVar("NAIS_DATABASE_FJERNLYS_API_DB_HOST"),
-    val port: String = getEnvVar("NAIS_DATABASE_FJERNLYS_API_DB_PORT"),
-    val username: String = getEnvVar("NAIS_DATABASE_FJERNLYS_API_DB_USERNAME"),
-    val password: String = getEnvVar("NAIS_DATABASE_FJERNLYS_API_DB_PASSWORD"),
-    val name: String = getEnvVar("NAIS_DATABASE_FJERNLYS_API_DB_DATABASE")
+    val host: String = getEnvVar("NAIS_DATABASE_FJERNLYS_API_DB_HOST", "127.0.0.1"),
+    val port: String = getEnvVar("NAIS_DATABASE_FJERNLYS_API_DB_PORT", "5432"),
+    val username: String = getEnvVar("NAIS_DATABASE_FJERNLYS_API_DB_USERNAME", "postgres"),
+    val password: String = getEnvVar("NAIS_DATABASE_FJERNLYS_API_DB_PASSWORD","test"),
+    val name: String = getEnvVar("NAIS_DATABASE_FJERNLYS_API_DB_DATABASE", "postgres")
 )
-
+/*
 class Security(
     val azureConfig: AzureConfig = AzureConfig(),
     val adGrupper: ADGrupper = ADGrupper()
@@ -39,7 +39,7 @@ class Security(
         const val NAME_CLAIM = "name"
         const val OBJECT_ID_CLAIM = "oid"
     }
-}
+}*/
 
 class AzureConfig(
     val clientId: String = getEnvVar("AZURE_APP_CLIENT_ID"),

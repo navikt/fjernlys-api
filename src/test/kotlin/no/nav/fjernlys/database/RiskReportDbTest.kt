@@ -23,7 +23,7 @@ class RiskReportDbTest {
         """.trimIndent()
 
         val query = queryOf(statement = sql).map(this::mapRowToStatusoversikt).asList
-        session.run(query)
+        print(session.run(query))
         }
 
     }

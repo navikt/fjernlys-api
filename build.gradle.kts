@@ -4,6 +4,8 @@ val logback_version: String by project
 plugins {
     kotlin("jvm") version "2.0.0"
     id("io.ktor.plugin") version "2.3.12"
+    kotlin("plugin.serialization") version "1.6.0"
+
 }
 
 group = "no.nav.fjernlys"
@@ -21,12 +23,22 @@ repositories {
 }
 
 dependencies {
+    // Ktor
     implementation("io.ktor:ktor-server-auth-jvm")
-    implementation("io.ktor:ktor-server-core-jvm")
     implementation("io.ktor:ktor-server-auth-jwt-jvm")
-    implementation("io.ktor:ktor-server-netty-jvm")
-    implementation("ch.qos.logback:logback-classic:$logback_version")
+    implementation("io.ktor:ktor-server-netty-jvm:2.0.0")
     implementation("io.ktor:ktor-server-config-yaml")
+    implementation("io.ktor:ktor-server-content-negotiation:2.0.0")
+    implementation("io.ktor:ktor-serialization-kotlinx-json:2.0.0")
+    implementation("io.ktor:ktor-server-cors:2.0.3")
+    implementation("io.ktor:ktor-server-core-jvm:2.0.0")
+
+    // Logging
+    implementation("ch.qos.logback:logback-classic:1.2.3")
+    implementation("ch.qos.logback:logback-classic:$logback_version")
+
+    // JSON Serialization
+    implementation("org.jetbrains.kotlinx:kotlinx-serialization-json:1.3.2")
 
     // Database
     implementation("org.flywaydb:flyway-database-postgresql:10.15.0")
@@ -34,6 +46,7 @@ dependencies {
     implementation("com.zaxxer:HikariCP:5.1.0")
     implementation("com.github.seratch:kotliquery:1.9.0")
 
+    // Testing
     testImplementation("io.ktor:ktor-server-tests-jvm")
     testImplementation("org.jetbrains.kotlin:kotlin-test-junit:$kotlin_version")
     testImplementation("org.junit.jupiter:junit-jupiter-api:5.10.3")

@@ -3,22 +3,20 @@ package no.nav.fjernlys.dbQueries
 import kotliquery.queryOf
 import kotliquery.sessionOf
 import kotliquery.using
-import no.nav.fjernlys.NaisEnvironment
-import no.nav.fjernlys.createDataSource
 import org.junit.jupiter.api.AfterEach
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
+import testcontainers.TestContainersHelper
 
 class DbQueryInsertTest {
 
     private lateinit var dbQueryInsert: DbQueryInsert
-    private val naisEnv = NaisEnvironment()
-    private val dataSource = createDataSource(database = naisEnv.database)
+    private val dataSource = TestContainersHelper.postgresContainer.dataSource
 
     @BeforeEach
     fun setup() {
-        dbQueryInsert = DbQueryInsert()
+        dbQueryInsert = DbQueryInsert(dataSource)
         clearDatabase()
     }
 

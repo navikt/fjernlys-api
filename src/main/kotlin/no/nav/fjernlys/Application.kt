@@ -12,7 +12,7 @@ fun main(args: Array<String>) {
 
     val dataSource = createDataSource(database = naisEnv.database)
     runMigration(dataSource = dataSource)
-    val Test = DbQueryInsert()
+    val Test = DbQueryInsert(dataSource)
     Test.insertInfo()
     Test.printAllRecords()
 

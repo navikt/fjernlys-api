@@ -6,12 +6,11 @@ import kotliquery.sessionOf
 import kotliquery.using
 import no.nav.fjernlys.NaisEnvironment
 import no.nav.fjernlys.createDataSource
+import javax.sql.DataSource
 
-class DbQueryInsert {
+class DbQueryInsert(val dataSource: DataSource) {
 
     fun insertInfo() {
-        val naisEnv = NaisEnvironment()
-        val dataSource = createDataSource(database = naisEnv.database)
         using(sessionOf(dataSource)) { session ->
 
             val sql = """

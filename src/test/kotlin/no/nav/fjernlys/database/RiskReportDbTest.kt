@@ -4,16 +4,14 @@ import kotliquery.Row
 import kotliquery.queryOf
 import kotliquery.sessionOf
 import kotliquery.using
-import no.nav.fjernlys.NaisEnvironment
-import no.nav.fjernlys.createDataSource
-import no.nav.fjernlys.runMigration
-import org.junit.Test
+import org.junit.jupiter.api.Test
+import testcontainers.TestContainersHelper
 
 class RiskReportDbTest {
+    private val dataSource = TestContainersHelper.postgresContainer.dataSource
+
     @Test
-    fun `harTabell`(){
-        val naisEnv = NaisEnvironment()
-        val dataSource = createDataSource(database = naisEnv.database)
+    fun `migration has been run`(){
         using(sessionOf(dataSource)) { session ->
             val sql = """
             SELECT
@@ -27,7 +25,7 @@ class RiskReportDbTest {
         }
 
     }
-    private fun mapRowToStatusoversikt(rad: Row): Int {
+    private fun mapRowToStatusoversikt(row: Row): Int {
         return 1
     }
 }

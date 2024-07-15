@@ -1,11 +1,11 @@
 package no.nav.fjernlys.appstatus
 
-
 import io.ktor.client.request.*
 import io.ktor.client.statement.*
 import io.ktor.http.*
 import io.ktor.server.testing.*
-import kotlin.test.*
+import org.junit.jupiter.api.Assertions.assertEquals
+import org.junit.jupiter.api.Test
 
 class HealthRouteTest {
     @Test
@@ -15,6 +15,7 @@ class HealthRouteTest {
             assertEquals("OK", bodyAsText())
         }
     }
+
     @Test
     fun `isReady Test`() = testApplication {
         client.get("/internal/isready").apply {

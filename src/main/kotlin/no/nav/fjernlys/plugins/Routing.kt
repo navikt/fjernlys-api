@@ -7,15 +7,19 @@ import io.ktor.server.request.*
 import io.ktor.server.response.*
 import io.ktor.server.routing.*
 import kotlinx.serialization.Serializable
-import kotlinx.serialization.json.Json
+import no.nav.fjernlys.dbQueries.RiskAssessmentRepository
+import no.nav.fjernlys.dbQueries.RiskMeasureRepository
+import no.nav.fjernlys.dbQueries.RiskReportRepository
+import java.time.LocalDateTime
+import java.util.UUID
+import javax.sql.DataSource
 
-fun Application.configureRouting() {
+fun Application.configureRouting(dataSource: DataSource) {
 
     @Serializable
     data class MeasureValue(
         val category: String,
         val status: String,
-        val started: Boolean
     )
 
     @Serializable
@@ -25,9 +29,9 @@ fun Application.configureRouting() {
         val dependent: Boolean,
         val riskLevel: String,
         val category: String,
-        val measureValues: List<MeasureValue>?,
-        val newConsequence: String?,
-        val newProbability: String?
+        val measureValues: List<MeasureValue>? = null,
+        val newConsequence: Double? = null,
+        val newProbability: Double? = null
     )
 
     @Serializable
@@ -38,16 +42,64 @@ fun Application.configureRouting() {
         val riskValues: List<RiskValue>
     )
 
+    var incomingData: IncomingData? = null
+    val date = LocalDateTime.now()
+    fun test() {
+        val riskReportRepository = RiskReportRepository(dataSource)
+        val riskAssessmentRepository = RiskAssessmentRepository(dataSource)
+        val riskMeasureRepository = RiskMeasureRepository(dataSource)
 
+        val reportId = UUID.randomUUID().toString() // Generate or fetch a meaningful ID
+        if (incomingData != null) {
+            riskReportRepository.insertIntoRiskReport(
+                reportId,
+                incomingData!!.ownerData,
+                incomingData!!.notOwnerData,
+                incomingData!!.serviceData,
+                date,
+                date
+            )
+        }
+
+        incomingData?.riskValues?.forEach { riskValue ->
+            val riskAssessmentId = UUID.randomUUID().toString() // Generate or fetch a meaningful ID
+
+            riskAssessmentRepository.insertIntoRiskAssessment(
+                id = riskAssessmentId,
+                report_id = reportId,
+                probability = riskValue.probability,
+                consequence = riskValue.consequence,
+                dependent = riskValue.dependent,
+                risk_level = riskValue.riskLevel,
+                category = riskValue.category,
+                new_probability = riskValue.newProbability,
+                new_consequence = riskValue.newConsequence
+            )
+
+            riskValue.measureValues?.forEach { measureValue ->
+                val measureId = UUID.randomUUID().toString() // Generate or fetch a meaningful ID
+
+                riskMeasureRepository.insertIntoRiskMeasure(
+                    id = measureId,
+                    risk_assessment_id = riskAssessmentId,
+                    measure_category = measureValue.category,
+                    measure_status = measureValue.status,
+
+                    )
+            }
+        }
+    }
     routing {
         health()
 
         post("/submit") {
             val postData = call.receive<IncomingData>()
             println("Received data: $postData")
-            println("TESTE: ${postData.serviceData}")
-            println("Measure:  ${postData.riskValues[0].measureValues?.get(0)?.category}")
+            incomingData = postData
             call.respond(HttpStatusCode.OK, mapOf("message" to "Data received successfully"))
+            test()
         }
     }
+
+
 }

@@ -4,6 +4,7 @@ val logback_version: String by project
 plugins {
     kotlin("jvm") version "2.0.0"
     id("io.ktor.plugin") version "2.3.12"
+    kotlin("plugin.serialization") version "1.7.0"
 }
 
 group = "no.nav.fjernlys"
@@ -35,8 +36,6 @@ dependencies {
     implementation("ch.qos.logback:logback-classic:1.2.3")
     implementation("ch.qos.logback:logback-classic:$logback_version")
 
-    // JSON Serialization
-    implementation("org.jetbrains.kotlinx:kotlinx-serialization-json:1.3.2")
 
     // Database
     implementation("org.flywaydb:flyway-database-postgresql:10.15.0")

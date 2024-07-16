@@ -17,16 +17,17 @@ class RiskAssessmentRepository(val dataSource: DataSource) {
         dependent: Boolean,
         risk_level: String,
         category: String,
-        new_probability: Number,
-        new_consequence: Number
+        new_probability: Double?,
+        new_consequence: Double?
     ) {
+
         using(sessionOf(dataSource)) { session ->
 
             val sql = """
-            INSERT INTO risk_assessment (
-                id, report_id, probability, consequence, dependent, risk_level, category, new_probability, new_consequence
-            ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)
-        """.trimIndent()
+                INSERT INTO risk_assessment (
+                    id, report_id, probability, consequence, dependent, risk_level, category, new_probability, new_consequence
+                ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)
+            """.trimIndent()
 
             session.run(
                 queryOf(
@@ -42,6 +43,7 @@ class RiskAssessmentRepository(val dataSource: DataSource) {
                     new_consequence
                 ).asUpdate
             )
+
         }
     }
 

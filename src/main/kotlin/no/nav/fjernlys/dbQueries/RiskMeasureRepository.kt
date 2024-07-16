@@ -11,7 +11,7 @@ import javax.sql.DataSource
 class RiskMeasureRepository(val dataSource: DataSource) {
 
 
-    fun insertIntoRiskAssessment(
+    fun insertIntoRiskMeasure(
         id: String,
         risk_assessment_id: String,
         measure_category: String,
@@ -21,9 +21,9 @@ class RiskMeasureRepository(val dataSource: DataSource) {
         using(sessionOf(dataSource)) { session ->
 
             val sql = """
-            INSERT INTO risk_assessment (
-                id, riskAssessmentId, category, status, startedMeasure
-            ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)
+            INSERT INTO risk_measure (
+                id, risk_assessment_id, measure_category, measure_status, measure_started
+            ) VALUES (?, ?, ?, ?, ?)
         """.trimIndent()
 
             session.run(

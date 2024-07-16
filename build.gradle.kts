@@ -4,6 +4,7 @@ val logback_version: String by project
 plugins {
     kotlin("jvm") version "2.0.0"
     id("io.ktor.plugin") version "2.3.12"
+    kotlin("plugin.serialization") version "2.0.0"
 }
 
 group = "no.nav.fjernlys"
@@ -43,6 +44,9 @@ dependencies {
     val testcontainersVersion = "1.19.8"
     testImplementation("org.testcontainers:testcontainers:$testcontainersVersion")
     testImplementation("org.testcontainers:postgresql:$testcontainersVersion")
+
+    //JSON Serialization
+    implementation("org.jetbrains.kotlinx:kotlinx-serialization-json:1.7.1")
 }
 
 tasks.test {

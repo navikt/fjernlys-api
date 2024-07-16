@@ -16,6 +16,8 @@ fun main(args: Array<String>) {
 //    register.insertIntoRiskAssessment("123e4567-e89b-12d3-a456-426614174001","RAPPORT1", 2.5, 3.5, false, "Moderat", "Personvern", 1.5, 2.0)
 
     io.ktor.server.netty.EngineMain.main(args)
+
+
 }
 
 fun Application.module() {

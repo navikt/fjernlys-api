@@ -4,22 +4,53 @@ import kotliquery.Row
 import kotliquery.queryOf
 import kotliquery.sessionOf
 import kotliquery.using
-import no.nav.fjernlys.NaisEnvironment
-import no.nav.fjernlys.createDataSource
-import no.nav.fjernlys.dbQueries.DbQueryInsert
 import org.junit.jupiter.api.Test
 import testcontainers.TestContainersHelper
 
 class RiskReportDbTest {
     @Test
-    fun `harTabell`() {
+    fun `harTabell Report`() {
         val dataSource = TestContainersHelper.postgresContainer.dataSource
         using(sessionOf(dataSource)) { session ->
             val sql = """
             SELECT
                 *
             FROM 
-               risk_measure   
+               risk_report  
+        """.trimIndent()
+
+            val query = queryOf(statement = sql).map(this::mapRowToStatusoversikt).asList
+            print(session.run(query))
+        }
+
+    }
+
+    @Test
+    fun `harTabell Assessment`() {
+        val dataSource = TestContainersHelper.postgresContainer.dataSource
+        using(sessionOf(dataSource)) { session ->
+            val sql = """
+            SELECT
+                *
+            FROM 
+               risk_assessment  
+        """.trimIndent()
+
+            val query = queryOf(statement = sql).map(this::mapRowToStatusoversikt).asList
+            print(session.run(query))
+        }
+
+    }
+
+    @Test
+    fun `harTabell Measure`() {
+        val dataSource = TestContainersHelper.postgresContainer.dataSource
+        using(sessionOf(dataSource)) { session ->
+            val sql = """
+            SELECT
+                *
+            FROM 
+               risk_measure  
         """.trimIndent()
 
             val query = queryOf(statement = sql).map(this::mapRowToStatusoversikt).asList

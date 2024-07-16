@@ -1,26 +1,48 @@
 package no.nav.fjernlys
 
-
+import io.ktor.http.*
+import io.ktor.serialization.kotlinx.json.*
 import io.ktor.server.application.*
+import io.ktor.server.plugins.contentnegotiation.ContentNegotiation
+import io.ktor.server.engine.embeddedServer
+import io.ktor.server.netty.Netty
 import no.nav.fjernlys.plugins.configureRouting
 import no.nav.fjernlys.plugins.configureSecurity
-import no.nav.fjernlys.dbQueries.RiskAssessmentRepository
+import io.ktor.server.plugins.cors.routing.CORS
+import kotlinx.serialization.json.Json
+
+//import io.ktor.features.StatusPages
+
 
 fun main(args: Array<String>) {
-
     val naisEnv = NaisEnvironment()
-
     val dataSource = createDataSource(database = naisEnv.database)
-    runMigration(dataSource = dataSource)
-//    val register = RiskAssessmentRepository()
-//    register.insertIntoRiskAssessment("123e4567-e89b-12d3-a456-426614174001","RAPPORT1", 2.5, 3.5, false, "Moderat", "Personvern", 1.5, 2.0)
-
-    io.ktor.server.netty.EngineMain.main(args)
-
-
+    //runMigration(dataSource = dataSource)
+    embeddedServer(Netty, port = 8080, host = "0.0.0.0") {
+        module()
+    }.start(wait = true)
 }
 
 fun Application.module() {
     configureSecurity()
+    install(ContentNegotiation) {
+        json()
+    }
+//    install(StatusPages) {
+//        exception<Throwable> { cause ->
+//            call.respond(HttpStatusCode.InternalServerError, cause.localizedMessage)
+//        }
+//    }
     configureRouting()
+    install(CORS) {
+        allowMethod(HttpMethod.Options)
+        allowMethod(HttpMethod.Get)
+        allowMethod(HttpMethod.Post)
+        allowMethod(HttpMethod.Put)
+        allowMethod(HttpMethod.Delete)
+        allowHeader(HttpHeaders.Authorization)
+        allowHeader(HttpHeaders.ContentType)
+        allowCredentials = true
+        anyHost()
+    }
 }

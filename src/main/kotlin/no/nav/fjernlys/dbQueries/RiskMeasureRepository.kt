@@ -58,6 +58,27 @@ class RiskMeasureRepository(val dataSource: DataSource) {
         }
     }
 
+    fun getRiskMeasureFromAssessmentId(risk_assessment_id: String): List<RiskMeasureData> {
+        val sql = """
+        SELECT * FROM risk_measure WHERE risk_assessment_id = :risk_assessment_id
+    """.trimIndent()
+
+        return using(sessionOf(dataSource)) { session ->
+            session.run(
+                queryOf(sql, mapOf("risk_assessment_id" to risk_assessment_id))
+                    .map { row ->
+                        RiskMeasureData(
+                            id = row.string("id"),
+                            risk_assessment_id = row.string("risk_assessment_id"),
+                            measure_category = row.string("measure_category"),
+                            measure_status = row.string("measure_status"),
+                        )
+                    }
+                    .asList
+            )
+        }
+    }
+
     data class RiskMeasureData(
         val id: String,
         val risk_assessment_id: String,
@@ -65,17 +86,4 @@ class RiskMeasureRepository(val dataSource: DataSource) {
         val measure_status: String,
 
         )
-
-    fun mapRowToRiskMeasure(row: Row): RiskMeasureData {
-        // Convert a single row into a RisikoRapport object
-        return RiskMeasureData(
-            id = row.string("id"),
-            risk_assessment_id = row.string("risk_assessment_id"),
-            measure_category = row.string("measure_category"),
-            measure_status = row.string("measure_status"),
-
-            )
-    }
-
-
 }

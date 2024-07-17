@@ -26,6 +26,26 @@ fun Application.configureRouting(dataSource: DataSource) {
     )
 
     @Serializable
+    data class MeasureValueOut(
+        val id: String?,
+        val risk_assessment_id: String?,
+        val category: String,
+        val status: String,
+    )
+
+    @Serializable
+    data class RiskValueOut(
+        val probability: Double,
+        val consequence: Double,
+        val dependent: Boolean,
+        val riskLevel: String,
+        val category: String,
+        val measureValues: List<MeasureValueOut>?,
+        val newConsequence: Double? = null,
+        val newProbability: Double? = null
+    )
+
+    @Serializable
     data class RiskValue(
         val probability: Double,
         val consequence: Double,
@@ -43,6 +63,15 @@ fun Application.configureRouting(dataSource: DataSource) {
         val notOwnerData: String,
         val serviceData: String,
         val riskValues: List<RiskValue>
+    )
+
+    @Serializable
+    data class OutgoingData(
+        val id: String,
+        val ownerData: Boolean,
+        val notOwnerData: String,
+        val serviceData: String,
+        val riskValueOut: List<RiskValueOut>?
     )
 
     @Serializable
@@ -103,6 +132,54 @@ fun Application.configureRouting(dataSource: DataSource) {
             }
         }
     }
+
+    fun getAllReports(service: String): String {
+        val riskReportRepository = RiskReportRepository(dataSource)
+        val riskAssessmentRepository = RiskAssessmentRepository(dataSource)
+        val riskMeasureRepository = RiskMeasureRepository(dataSource)
+
+        val reportList = riskReportRepository.getRiskReportIdFromService(service)
+
+        val result = reportList.map { report ->
+            val riskAssessmentList = riskAssessmentRepository.getRiskMeasureFromAssessmentId(report.id)
+
+            val riskValues = riskAssessmentList.map { assessment ->
+                val riskMeasureList = riskMeasureRepository.getRiskMeasureFromAssessmentId(assessment.id)
+
+                val measureValuesOut = riskMeasureList.map { measure ->
+                    MeasureValueOut(
+                        id = measure.id,
+                        risk_assessment_id = measure.risk_assessment_id,
+                        category = measure.measure_category,
+                        status = measure.measure_status
+                    )
+                }
+
+                RiskValueOut(
+                    probability = assessment.probability.toDouble(),
+                    consequence = assessment.consequence.toDouble(),
+                    dependent = assessment.dependent,
+                    riskLevel = assessment.risk_level,
+                    category = assessment.category,
+                    measureValues = measureValuesOut,
+                    newConsequence = assessment.new_consequence?.toDouble(),
+                    newProbability = assessment.new_probability?.toDouble()
+                )
+            }
+
+            OutgoingData(
+                id = report.id,
+                ownerData = report.is_owner,
+                notOwnerData = report.owner_ident,
+                serviceData = report.service_name,
+                riskValueOut = riskValues
+            )
+        }
+
+        return Json.encodeToString(result)
+    }
+
+
     routing {
         health()
 
@@ -127,20 +204,41 @@ fun Application.configureRouting(dataSource: DataSource) {
                 val testListe: List<RiskReportRepository.RiskReportData> =
                     riskReport.getRiskReportIdFromService(getReportService)
 
-// Serialize the list to JSON
                 val jsonTestListe = Json.encodeToString(testListe)
 
-// Respond with the JSON object
                 call.respond(HttpStatusCode.OK, jsonTestListe)
 
-// For debugging
                 println(jsonTestListe)
             } catch (e: Exception) {
                 e.printStackTrace()
                 call.respond(HttpStatusCode.InternalServerError, "An error occurred: ${e.message}")
             }
         }
+
+        get("/get/all") {
+            try {
+                val getReportService = call.request.queryParameters["service"]
+                    ?: throw IllegalArgumentException("Missing parameter: service")
+
+                val allReports = getAllReports(getReportService)
+
+
+                call.respond(HttpStatusCode.OK, allReports)
+                println(allReports)
+
+
+            } catch (e: Exception) {
+                e.printStackTrace()
+                call.respond(HttpStatusCode.InternalServerError, "An error occurred: ${e.message}")
+            }
+        }
     }
-
-
 }
+
+
+
+
+
+
+
+

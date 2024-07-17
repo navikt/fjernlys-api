@@ -6,13 +6,16 @@ import io.ktor.server.application.*
 import io.ktor.server.request.*
 import io.ktor.server.response.*
 import io.ktor.server.routing.*
+import kotlinx.datetime.*
 import kotlinx.serialization.Serializable
+import kotlinx.serialization.encodeToString
+import kotlinx.serialization.json.Json
 import no.nav.fjernlys.dbQueries.RiskAssessmentRepository
 import no.nav.fjernlys.dbQueries.RiskMeasureRepository
 import no.nav.fjernlys.dbQueries.RiskReportRepository
-import java.time.LocalDateTime
 import java.util.UUID
 import javax.sql.DataSource
+
 
 fun Application.configureRouting(dataSource: DataSource) {
 
@@ -29,7 +32,7 @@ fun Application.configureRouting(dataSource: DataSource) {
         val dependent: Boolean,
         val riskLevel: String,
         val category: String,
-        val measureValues: List<MeasureValue>? = null,
+        val measureValues: List<MeasureValue>? = listOf(),
         val newConsequence: Double? = null,
         val newProbability: Double? = null
     )
@@ -42,14 +45,25 @@ fun Application.configureRouting(dataSource: DataSource) {
         val riskValues: List<RiskValue>
     )
 
+    @Serializable
+    data class RiskReportData(
+        val id: String,
+        val is_owner: Boolean,
+        val owner_ident: String,
+        val service_name: String,
+        val report_created: Instant,
+        val report_edited: Instant
+    )
+
     var incomingData: IncomingData? = null
-    val date = LocalDateTime.now()
+    val currentMoment: Instant = Clock.System.now()
+    val date: Instant = currentMoment
     fun test() {
         val riskReportRepository = RiskReportRepository(dataSource)
         val riskAssessmentRepository = RiskAssessmentRepository(dataSource)
         val riskMeasureRepository = RiskMeasureRepository(dataSource)
 
-        val reportId = UUID.randomUUID().toString() // Generate or fetch a meaningful ID
+        val reportId = UUID.randomUUID().toString()
         if (incomingData != null) {
             riskReportRepository.insertIntoRiskReport(
                 reportId,
@@ -93,11 +107,38 @@ fun Application.configureRouting(dataSource: DataSource) {
         health()
 
         post("/submit") {
-            val postData = call.receive<IncomingData>()
-            println("Received data: $postData")
-            incomingData = postData
-            call.respond(HttpStatusCode.OK, mapOf("message" to "Data received successfully"))
-            test()
+            try {
+                val postData = call.receive<IncomingData>()
+                println("Received data: $postData")
+                incomingData = postData
+                call.respond(HttpStatusCode.OK, mapOf("message" to "Data received successfully"))
+                test()
+            } catch (e: Exception) {
+                e.printStackTrace()
+            }
+        }
+
+        get("/get/reports") {
+            try {
+                val getReportService = call.request.queryParameters["service"]
+                    ?: throw IllegalArgumentException("Missing parameter: service")
+
+                val riskReport = RiskReportRepository(dataSource)
+                val testListe: List<RiskReportRepository.RiskReportData> =
+                    riskReport.getRiskReportIdFromService(getReportService)
+
+// Serialize the list to JSON
+                val jsonTestListe = Json.encodeToString(testListe)
+
+// Respond with the JSON object
+                call.respond(HttpStatusCode.OK, jsonTestListe)
+
+// For debugging
+                println(jsonTestListe)
+            } catch (e: Exception) {
+                e.printStackTrace()
+                call.respond(HttpStatusCode.InternalServerError, "An error occurred: ${e.message}")
+            }
         }
     }
 

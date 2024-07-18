@@ -78,7 +78,10 @@ class RiskReportRepository(val dataSource: DataSource) {
 
     fun getRiskReportIdFromService(service_name: String): List<RiskReportData> {
         val sql = """
-        SELECT * FROM risk_report WHERE service_name = :service_name
+        SELECT * 
+FROM risk_report 
+WHERE service_name = :service_name 
+ORDER BY report_created DESC;
     """.trimIndent()
 
         return using(sessionOf(dataSource)) { session ->

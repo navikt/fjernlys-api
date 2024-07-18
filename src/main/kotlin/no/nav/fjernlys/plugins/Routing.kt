@@ -20,11 +20,11 @@ import javax.sql.DataSource
 fun Application.configureRouting(dataSource: DataSource) {
 
 
-
     var incomingData: IncomingData? = null
-    val currentMoment: Instant = Clock.System.now()
-    val date: Instant = currentMoment
+
     fun test() {
+        val currentMoment: Instant = Clock.System.now()
+        val date: Instant = currentMoment
         val riskReportRepository = RiskReportRepository(dataSource)
         val riskAssessmentRepository = RiskAssessmentRepository(dataSource)
         val riskMeasureRepository = RiskMeasureRepository(dataSource)

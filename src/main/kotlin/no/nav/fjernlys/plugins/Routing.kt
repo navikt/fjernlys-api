@@ -35,6 +35,7 @@ fun Application.configureRouting(dataSource: DataSource) {
 
     @Serializable
     data class RiskValueOut(
+        val id: String,
         val probability: Double,
         val consequence: Double,
         val dependent: Boolean,
@@ -68,10 +69,12 @@ fun Application.configureRouting(dataSource: DataSource) {
     @Serializable
     data class OutgoingData(
         val id: String,
-        val ownerData: Boolean,
-        val notOwnerData: String,
-        val serviceData: String,
-        val riskValueOut: List<RiskValueOut>?
+        val is_owner: Boolean,
+        val owner_ident: String,
+        val service_name: String,
+        val risk_values: List<RiskValueOut>?,
+        val report_created: Instant,
+        val report_edited: Instant
     )
 
     @Serializable
@@ -156,6 +159,7 @@ fun Application.configureRouting(dataSource: DataSource) {
                 }
 
                 RiskValueOut(
+                    id = assessment.id,
                     probability = assessment.probability.toDouble(),
                     consequence = assessment.consequence.toDouble(),
                     dependent = assessment.dependent,
@@ -169,10 +173,12 @@ fun Application.configureRouting(dataSource: DataSource) {
 
             OutgoingData(
                 id = report.id,
-                ownerData = report.is_owner,
-                notOwnerData = report.owner_ident,
-                serviceData = report.service_name,
-                riskValueOut = riskValues
+                is_owner = report.is_owner,
+                owner_ident = report.owner_ident,
+                service_name = report.service_name,
+                risk_values = riskValues,
+                report_created = report.report_created,
+                report_edited = report.report_edited
             )
         }
 

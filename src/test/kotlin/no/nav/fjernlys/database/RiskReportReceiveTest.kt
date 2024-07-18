@@ -1,5 +1,7 @@
 package no.nav.fjernlys.database
 
+import kotlinx.datetime.Clock
+import kotlinx.datetime.Instant
 import kotlinx.serialization.Serializable
 import kotlinx.serialization.json.Json
 import kotliquery.Row
@@ -91,8 +93,8 @@ class RiskReportReceiveTest {
 
     val incomingData = Json.decodeFromString<IncomingData>(jsonString)
 
-    val sortedRiskValues = incomingData.riskValues
-    val date = LocalDateTime.now()
+    val currentMoment: Instant = Clock.System.now()
+    val date: Instant = currentMoment
 
 
     @BeforeEach
@@ -134,8 +136,8 @@ class RiskReportReceiveTest {
                     risk_assessment_id = riskAssessmentId,
                     measure_category = measureValue.category,
                     measure_status = measureValue.status,
-                    measure_started = measureValue.started
-                )
+
+                    )
             }
         }
     }

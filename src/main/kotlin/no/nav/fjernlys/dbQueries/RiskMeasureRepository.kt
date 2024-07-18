@@ -11,19 +11,18 @@ import javax.sql.DataSource
 class RiskMeasureRepository(val dataSource: DataSource) {
 
 
-    fun insertIntoRiskAssessment(
+    fun insertIntoRiskMeasure(
         id: String,
         risk_assessment_id: String,
         measure_category: String,
         measure_status: String,
-        measure_started: Boolean
     ) {
         using(sessionOf(dataSource)) { session ->
 
             val sql = """
-            INSERT INTO risk_assessment (
-                id, riskAssessmentId, category, status, startedMeasure
-            ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)
+            INSERT INTO risk_measure (
+                id, risk_assessment_id, measure_category, measure_status
+            ) VALUES (?, ?, ?, ?)
         """.trimIndent()
 
             session.run(
@@ -32,8 +31,7 @@ class RiskMeasureRepository(val dataSource: DataSource) {
                     id,
                     risk_assessment_id,
                     measure_category,
-                    measure_status,
-                    measure_started,
+                    measure_status
                 ).asUpdate
             )
         }
@@ -53,10 +51,30 @@ class RiskMeasureRepository(val dataSource: DataSource) {
                             risk_assessment_id = row.string("risk_assessment_id"),
                             measure_category = row.string("measure_category"),
                             measure_status = row.string("measure_status"),
-                            measure_started = row.boolean("measure_started"),
                         )
                     }
                     .asSingle
+            )
+        }
+    }
+
+    fun getRiskMeasureFromAssessmentId(risk_assessment_id: String): List<RiskMeasureData> {
+        val sql = """
+        SELECT * FROM risk_measure WHERE risk_assessment_id = :risk_assessment_id
+    """.trimIndent()
+
+        return using(sessionOf(dataSource)) { session ->
+            session.run(
+                queryOf(sql, mapOf("risk_assessment_id" to risk_assessment_id))
+                    .map { row ->
+                        RiskMeasureData(
+                            id = row.string("id"),
+                            risk_assessment_id = row.string("risk_assessment_id"),
+                            measure_category = row.string("measure_category"),
+                            measure_status = row.string("measure_status"),
+                        )
+                    }
+                    .asList
             )
         }
     }
@@ -66,19 +84,6 @@ class RiskMeasureRepository(val dataSource: DataSource) {
         val risk_assessment_id: String,
         val measure_category: String,
         val measure_status: String,
-        val measure_started: Boolean
-    )
 
-    fun mapRowToRiskMeasure(row: Row): RiskMeasureData {
-        // Convert a single row into a RisikoRapport object
-        return RiskMeasureData(
-            id = row.string("id"),
-            risk_assessment_id = row.string("risk_assessment_id"),
-            measure_category = row.string("measure_category"),
-            measure_status = row.string("measure_status"),
-            measure_started = row.boolean("measure_started"),
         )
-    }
-
-
 }

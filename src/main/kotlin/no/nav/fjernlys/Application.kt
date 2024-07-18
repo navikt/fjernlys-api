@@ -13,11 +13,11 @@ import kotlinx.serialization.json.Json
 
 //import io.ktor.features.StatusPages
 
-
+val naisEnv = NaisEnvironment()
+val dataSource = createDataSource(database = naisEnv.database)
 fun main(args: Array<String>) {
-    val naisEnv = NaisEnvironment()
-    val dataSource = createDataSource(database = naisEnv.database)
-    //runMigration(dataSource = dataSource)
+
+    runMigration(dataSource = dataSource)
     embeddedServer(Netty, port = 8080, host = "0.0.0.0") {
         module()
     }.start(wait = true)
@@ -33,7 +33,7 @@ fun Application.module() {
 //            call.respond(HttpStatusCode.InternalServerError, cause.localizedMessage)
 //        }
 //    }
-    configureRouting()
+    configureRouting(dataSource = dataSource)
     install(CORS) {
         allowMethod(HttpMethod.Options)
         allowMethod(HttpMethod.Get)

@@ -53,20 +53,32 @@ data class IncomingData(
 @Serializable
 data class OutgoingData(
     val id: String,
-    val is_owner: Boolean,
-    val owner_ident: String,
-    val service_name: String,
-    val risk_values: List<RiskValueOut>?,
-    val report_created: Instant,
-    val report_edited: Instant
+    val isOwner: Boolean,
+    val ownerIdent: String,
+    val serviceName: String,
+    val riskValues: List<RiskValueOut>?,
+    val reportCreated: Instant,
+    val reportEdited: Instant
 )
 
 @Serializable
-data class RiskReportData(
+data class RiskReportData (
     val id: String,
-    val is_owner: Boolean,
-    val owner_ident: String,
-    val service_name: String,
-    val report_created: Instant,
-    val report_edited: Instant
+    val isOwner: Boolean,
+    val ownerIdent: String,
+    val serviceName: String,
+    val reportCreated: Instant,
+    val reportEdited: Instant
+)
+@Serializable
+data class RiskAssessmentData (
+    val id: String,
+    val reportId: String,
+    val probability: Double,
+    val consequence: Double,
+    val dependent: Boolean,
+    val riskLevel: String,
+    val category: String,
+    val newProbability: Double,
+    val newConsequence: Double,
 )

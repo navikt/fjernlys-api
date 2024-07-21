@@ -10,11 +10,11 @@ import kotlinx.datetime.*
 import kotlinx.serialization.Serializable
 import kotlinx.serialization.encodeToString
 import kotlinx.serialization.json.Json
-import no.nav.fjernlys.dbQueries.RiskAssessmentRepository
-import no.nav.fjernlys.dbQueries.RiskMeasureRepository
-import no.nav.fjernlys.dbQueries.RiskReportRepository
+import no.nav.fjernlys.dbQueries.*
 import java.util.UUID
 import javax.sql.DataSource
+import no.nav.fjernlys.plugins.RiskReportData
+
 
 
 fun Application.configureRouting(dataSource: DataSource) {
@@ -107,12 +107,12 @@ fun Application.configureRouting(dataSource: DataSource) {
 
             OutgoingData(
                 id = report.id,
-                is_owner = report.is_owner,
-                owner_ident = report.owner_ident,
-                service_name = report.service_name,
-                risk_values = riskValues,
-                report_created = report.report_created,
-                report_edited = report.report_edited
+                isOwner = report.isOwner,
+                ownerIdent = report.ownerIdent,
+                serviceName = report.serviceName,
+                riskValues = riskValues,
+                reportCreated = report.reportCreated,
+                reportEdited = report.reportEdited
             )
         }
 
@@ -141,8 +141,7 @@ fun Application.configureRouting(dataSource: DataSource) {
                     ?: throw IllegalArgumentException("Missing parameter: service")
 
                 val riskReport = RiskReportRepository(dataSource)
-                val testListe: List<RiskReportRepository.RiskReportData> =
-                    riskReport.getRiskReportIdFromService(getReportService)
+                val testListe: List<RiskReportData> = riskReport.getRiskReportIdFromService(getReportService)
 
                 val jsonTestListe = Json.encodeToString(testListe)
 
@@ -172,8 +171,49 @@ fun Application.configureRouting(dataSource: DataSource) {
                 call.respond(HttpStatusCode.InternalServerError, "An error occurred: ${e.message}")
             }
         }
+        get("/get/history") {
+            try {
+//  --------------------------- Risk Report ---------------------------
+                val getReportId = call.request.queryParameters["id"]
+                if (getReportId == null) {
+                    call.respond(HttpStatusCode.BadRequest, "Missing or malformed id")
+                    return@get
+                }
+                val historyRiskRepository = HistoryRiskReportRepository(dataSource)
+                val findNewestReport = historyRiskRepository.getLastEditedRiskReport(getReportId)
+
+                if (findNewestReport != null) {
+                    val insertRiskSuccess = historyRiskRepository.insertLastEntryIntoRiskReportHistory(findNewestReport)
+                    if (insertRiskSuccess) {
+                        call.respond(HttpStatusCode.OK, "Entry successfully inserted into history.")
+                    } else {
+                        call.respond(HttpStatusCode.InternalServerError, "Failed to insert entry into history.")
+                    }
+                } else {
+                    call.respond(HttpStatusCode.NotFound, "Report not found")
+                }
+
+//  --------------------------- Risk Assessment ---------------------------
+                val historyAssRepository = HistoryRiskAssessmentRepository(dataSource)
+                val findNewestAssessment = historyAssRepository.getLastEditedRiskAssessment(getReportId)
+                if (findNewestAssessment != null) {
+                    val insertAssessmentSuccess = historyAssRepository.insertLastEntryIntoRiskAssessmentHistory(findNewestAssessment)
+                    if (insertAssessmentSuccess) {
+                        call.respond(HttpStatusCode.OK, "Entry successfully inserted into history.")
+                    } else {
+                        call.respond(HttpStatusCode.InternalServerError, "Failed to insert entry into history.")
+                    }
+                } else {
+                    call.respond(HttpStatusCode.NotFound, "Report not found")
+                }
+            } catch (e: Exception) {
+                e.printStackTrace()
+                call.respond(HttpStatusCode.InternalServerError, "An error occurred: ${e.message}")
+            }
+        }
     }
 }
+
 
 
 

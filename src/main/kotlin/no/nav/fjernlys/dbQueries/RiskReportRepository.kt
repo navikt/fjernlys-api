@@ -65,9 +65,32 @@ class RiskReportRepository(val dataSource: DataSource) {
         }
     }
 
+    fun getAllRiskReports(): List<RiskReportData> {
+        val sql = """
+        SELECT * FROM risk_report
+    """.trimIndent()
+
+        return using(sessionOf(dataSource)) { session ->
+            session.run(
+                queryOf(sql)
+                    .map { row ->
+                        RiskReportData(
+                            id = row.string("id"),
+                            isOwner = row.boolean("is_owner"),
+                            ownerIdent = row.string("owner_ident"),
+                            serviceName = row.string("service_name"),
+                            reportCreated = Instant.fromEpochMilliseconds(row.sqlTimestamp("report_created").time),
+                            reportEdited = Instant.fromEpochMilliseconds(row.sqlTimestamp("report_edited").time),
+                        )
+                    }
+                    .asList
+            )
+        }
+    }
+
     fun getAllRiskReportIds(): List<String> {
         val sql = """
-        SELECT id FROM risk_report
+        SELECT * FROM risk_report
     """.trimIndent()
 
         return using(sessionOf(dataSource)) { session ->
@@ -98,7 +121,6 @@ class RiskReportRepository(val dataSource: DataSource) {
             }.asList)
         }
     }
-
 
 
     data class RiskReportId(

@@ -74,7 +74,7 @@ class RiskAssessmentRepository(val dataSource: DataSource) {
         }
     }
 
-    fun getRiskMeasureFromAssessmentId(report_id: String): List<RiskAssessmentData> {
+    fun getRiskAssessmentFromReportId(report_id: String): List<RiskAssessmentData> {
         val sql = """
         SELECT * FROM risk_assessment WHERE report_id = :report_id
     """.trimIndent()

@@ -3,16 +3,16 @@ import kotlinx.datetime.Instant
 import kotlinx.serialization.Serializable
 
 
-@Serializable
-data class MeasureValue(
-    val category: String,
-    val status: String,
-)
+//@Serializable
+//data class MeasureValue(
+//    val category: String,
+//    val status: String,
+//)
 
 @Serializable
 data class MeasureValueOut(
     val id: String?,
-    val risk_assessment_id: String?,
+    val riskAssessmentId: String?,
     val category: String,
     val status: String,
 )
@@ -62,13 +62,13 @@ data class OutgoingData(
 )
 
 @Serializable
-data class RiskReportData (
+data class RiskReportData(
     val id: String,
     val isOwner: Boolean,
     val ownerIdent: String,
     val serviceName: String,
     val reportCreated: Instant,
-    val reportEdited: Instant
+    val reportEdited: Instant,
 )
 @Serializable
 data class RiskAssessmentData (
@@ -81,4 +81,20 @@ data class RiskAssessmentData (
     val category: String,
     val newProbability: Double,
     val newConsequence: Double,
+)
+
+data class RiskMeasureData(
+    val id: String,
+    val riskAssessmentId: String?,
+    val measureCategory: String,
+    val measureStatus: String,
+
+    )
+
+@Serializable
+data class MeasureValue(
+    val id: String,
+    val riskAssessmentId: String,
+    val category: String,
+    val status: String
 )

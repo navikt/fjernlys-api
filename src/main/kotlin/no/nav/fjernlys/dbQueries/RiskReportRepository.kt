@@ -12,7 +12,6 @@ import no.nav.fjernlys.plugins.RiskReportData
 class RiskReportRepository(val dataSource: DataSource) {
 
 
-
     fun insertIntoRiskReport(
         id: String,
         is_owner: Boolean,
@@ -94,9 +93,17 @@ class RiskReportRepository(val dataSource: DataSource) {
                     ownerIdent = row.string("owner_ident"),
                     serviceName = row.string("service_name"),
                     reportCreated = Instant.fromEpochMilliseconds(row.sqlTimestamp("report_created").time),
-                    reportEdited = Instant.fromEpochMilliseconds(row.sqlTimestamp("report_edited").time)
-                )
+                    reportEdited = Instant.fromEpochMilliseconds(row.sqlTimestamp("report_edited").time),
+                )// Directly map to string
             }.asList)
         }
     }
+
+
+
+    data class RiskReportId(
+        val id: String
+    )
+
+
 }

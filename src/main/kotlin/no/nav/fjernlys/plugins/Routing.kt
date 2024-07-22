@@ -46,14 +46,14 @@ fun Application.configureRouting(dataSource: DataSource) {
 
             riskAssessmentRepository.insertIntoRiskAssessment(
                 id = riskAssessmentId,
-                report_id = reportId,
+                reportId = reportId,
                 probability = riskValue.probability,
                 consequence = riskValue.consequence,
                 dependent = riskValue.dependent,
-                risk_level = riskValue.riskLevel,
+                riskLevel = riskValue.riskLevel,
                 category = riskValue.category,
-                new_probability = riskValue.newProbability,
-                new_consequence = riskValue.newConsequence
+                newProbability = riskValue.newProbability,
+                newConsequence = riskValue.newConsequence
             )
 
             riskValue.measureValues?.forEach { measureValue ->
@@ -61,9 +61,9 @@ fun Application.configureRouting(dataSource: DataSource) {
 
                 riskMeasureRepository.insertIntoRiskMeasure(
                     id = measureId,
-                    risk_assessment_id = riskAssessmentId,
-                    measure_category = measureValue.category,
-                    measure_status = measureValue.status,
+                    riskAssessmentId = riskAssessmentId,
+                    measureCategory = measureValue.category,
+                    measureStatus = measureValue.status,
 
                     )
             }
@@ -86,9 +86,9 @@ fun Application.configureRouting(dataSource: DataSource) {
                 val measureValuesOut = riskMeasureList.map { measure ->
                     MeasureValueOut(
                         id = measure.id,
-                        risk_assessment_id = measure.risk_assessment_id,
-                        category = measure.measure_category,
-                        status = measure.measure_status
+                        riskAssessmentId = measure.riskAssessmentId,
+                        category = measure.measureCategory,
+                        status = measure.measureStatus,
                     )
                 }
 
@@ -97,11 +97,11 @@ fun Application.configureRouting(dataSource: DataSource) {
                     probability = assessment.probability.toDouble(),
                     consequence = assessment.consequence.toDouble(),
                     dependent = assessment.dependent,
-                    riskLevel = assessment.risk_level,
+                    riskLevel = assessment.riskLevel,
                     category = assessment.category,
                     measureValues = measureValuesOut,
-                    newConsequence = assessment.new_consequence?.toDouble(),
-                    newProbability = assessment.new_probability?.toDouble()
+                    newConsequence = assessment.newConsequence?.toDouble(),
+                    newProbability = assessment.newProbability?.toDouble()
                 )
             }
 
@@ -141,13 +141,14 @@ fun Application.configureRouting(dataSource: DataSource) {
                     ?: throw IllegalArgumentException("Missing parameter: service")
 
                 val riskReport = RiskReportRepository(dataSource)
-                val testListe: List<RiskReportData> = riskReport.getRiskReportIdFromService(getReportService)
+                val testList: List<RiskReportData> =
+                    riskReport.getRiskReportIdFromService(getReportService)
 
-                val jsonTestListe = Json.encodeToString(testListe)
+                val jsonTestList = Json.encodeToString(testList)
 
-                call.respond(HttpStatusCode.OK, jsonTestListe)
+                call.respond(HttpStatusCode.OK, jsonTestList)
 
-                println(jsonTestListe)
+                println(jsonTestList)
             } catch (e: Exception) {
                 e.printStackTrace()
                 call.respond(HttpStatusCode.InternalServerError, "An error occurred: ${e.message}")
@@ -213,7 +214,6 @@ fun Application.configureRouting(dataSource: DataSource) {
         }
     }
 }
-
 
 
 

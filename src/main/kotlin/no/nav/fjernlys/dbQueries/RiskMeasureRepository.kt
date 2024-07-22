@@ -6,6 +6,7 @@ import kotliquery.sessionOf
 import kotliquery.using
 import no.nav.fjernlys.NaisEnvironment
 import no.nav.fjernlys.createDataSource
+import no.nav.fjernlys.plugins.RiskMeasureData
 import javax.sql.DataSource
 
 class RiskMeasureRepository(val dataSource: DataSource) {
@@ -13,9 +14,9 @@ class RiskMeasureRepository(val dataSource: DataSource) {
 
     fun insertIntoRiskMeasure(
         id: String,
-        risk_assessment_id: String,
-        measure_category: String,
-        measure_status: String,
+        riskAssessmentId: String,
+        measureCategory: String,
+        measureStatus: String,
     ) {
         using(sessionOf(dataSource)) { session ->
 
@@ -29,9 +30,9 @@ class RiskMeasureRepository(val dataSource: DataSource) {
                 queryOf(
                     sql,
                     id,
-                    risk_assessment_id,
-                    measure_category,
-                    measure_status
+                    riskAssessmentId,
+                    measureCategory,
+                    measureStatus
                 ).asUpdate
             )
         }
@@ -48,9 +49,9 @@ class RiskMeasureRepository(val dataSource: DataSource) {
                     .map { row ->
                         RiskMeasureData(
                             id = row.string("id"),
-                            risk_assessment_id = row.string("risk_assessment_id"),
-                            measure_category = row.string("measure_category"),
-                            measure_status = row.string("measure_status"),
+                            riskAssessmentId = row.string("risk_assessment_id"),
+                            measureCategory = row.string("measure_category"),
+                            measureStatus = row.string("measure_status"),
                         )
                     }
                     .asSingle
@@ -69,9 +70,9 @@ class RiskMeasureRepository(val dataSource: DataSource) {
                     .map { row ->
                         RiskMeasureData(
                             id = row.string("id"),
-                            risk_assessment_id = row.string("risk_assessment_id"),
-                            measure_category = row.string("measure_category"),
-                            measure_status = row.string("measure_status"),
+                            riskAssessmentId = row.string("risk_assessment_id"),
+                            measureCategory = row.string("measure_category"),
+                            measureStatus = row.string("measure_status"),
                         )
                     }
                     .asList
@@ -79,11 +80,5 @@ class RiskMeasureRepository(val dataSource: DataSource) {
         }
     }
 
-    data class RiskMeasureData(
-        val id: String,
-        val risk_assessment_id: String,
-        val measure_category: String,
-        val measure_status: String,
 
-        )
 }

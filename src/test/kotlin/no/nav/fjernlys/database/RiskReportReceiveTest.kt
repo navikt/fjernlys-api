@@ -118,14 +118,14 @@ class RiskReportReceiveTest {
 
             riskAssessmentRepository.insertIntoRiskAssessment(
                 id = riskAssessmentId,
-                report_id = reportId,
+                reportId = reportId,
                 probability = riskValue.probability,
                 consequence = riskValue.consequence,
                 dependent = riskValue.dependent,
-                risk_level = riskValue.riskLevel,
+                riskLevel = riskValue.riskLevel,
                 category = riskValue.category,
-                new_probability = riskValue.newProbability,
-                new_consequence = riskValue.newConsequence
+                newProbability = riskValue.newProbability,
+                newConsequence = riskValue.newConsequence
             )
 
             riskValue.measureValues.forEachIndexed { measureIndex, measureValue ->
@@ -133,9 +133,9 @@ class RiskReportReceiveTest {
 
                 riskMeasureRepository.insertIntoRiskMeasure(
                     id = measureId,
-                    risk_assessment_id = riskAssessmentId,
-                    measure_category = measureValue.category,
-                    measure_status = measureValue.status,
+                    riskAssessmentId = riskAssessmentId,
+                    measureCategory = measureValue.category,
+                    measureStatus = measureValue.status,
 
                     )
             }

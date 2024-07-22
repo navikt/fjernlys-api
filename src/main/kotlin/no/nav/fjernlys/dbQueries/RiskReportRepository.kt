@@ -7,6 +7,7 @@ import kotliquery.sessionOf
 import kotliquery.using
 import javax.sql.DataSource
 import kotlinx.serialization.Serializable
+import no.nav.fjernlys.plugins.RiskReportData
 
 class RiskReportRepository(val dataSource: DataSource) {
 
@@ -52,11 +53,11 @@ class RiskReportRepository(val dataSource: DataSource) {
                     .map { row ->
                         RiskReportData(
                             id = row.string("id"),
-                            is_owner = row.boolean("isOwner"),
-                            owner_ident = row.string("ownerIdent"),
-                            service_name = row.string("serviceName"),
-                            report_created = Instant.fromEpochMilliseconds(row.sqlTimestamp("report_created").time),
-                            report_edited = Instant.fromEpochMilliseconds(row.sqlTimestamp("report_edited").time),
+                            isOwner = row.boolean("is_owner"),
+                            ownerIdent = row.string("owner_ident"),
+                            serviceName = row.string("service_name"),
+                            reportCreated = Instant.fromEpochMilliseconds(row.sqlTimestamp("report_created").time),
+                            reportEdited = Instant.fromEpochMilliseconds(row.sqlTimestamp("report_edited").time),
                         )
                     }
                     .asSingle
@@ -88,25 +89,16 @@ ORDER BY report_created DESC;
             session.run(queryOf(sql, mapOf("service_name" to service_name)).map { row ->
                 RiskReportData(
                     id = row.string("id"),
-                    is_owner = row.boolean("is_owner"),
-                    owner_ident = row.string("owner_ident"),
-                    service_name = row.string("service_name"),
-                    report_created = Instant.fromEpochMilliseconds(row.sqlTimestamp("report_created").time),
-                    report_edited = Instant.fromEpochMilliseconds(row.sqlTimestamp("report_edited").time),
+                    isOwner = row.boolean("is_owner"),
+                    ownerIdent = row.string("owner_ident"),
+                    serviceName = row.string("service_name"),
+                    reportCreated = Instant.fromEpochMilliseconds(row.sqlTimestamp("report_created").time),
+                    reportEdited = Instant.fromEpochMilliseconds(row.sqlTimestamp("report_edited").time),
                 )// Directly map to string
             }.asList)
         }
     }
 
-    @Serializable
-    data class RiskReportData(
-        val id: String,
-        val is_owner: Boolean,
-        val owner_ident: String,
-        val service_name: String,
-        val report_created: Instant,
-        val report_edited: Instant
-    )
 
 
     data class RiskReportId(

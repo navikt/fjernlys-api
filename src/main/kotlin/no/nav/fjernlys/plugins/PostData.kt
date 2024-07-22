@@ -3,16 +3,16 @@ import kotlinx.datetime.Instant
 import kotlinx.serialization.Serializable
 
 
-@Serializable
-data class MeasureValue(
-    val category: String,
-    val status: String,
-)
+//@Serializable
+//data class MeasureValue(
+//    val category: String,
+//    val status: String,
+//)
 
 @Serializable
 data class MeasureValueOut(
     val id: String?,
-    val risk_assessment_id: String?,
+    val riskAssessmentId: String?,
     val category: String,
     val status: String,
 )
@@ -53,20 +53,36 @@ data class IncomingData(
 @Serializable
 data class OutgoingData(
     val id: String,
-    val is_owner: Boolean,
-    val owner_ident: String,
-    val service_name: String,
-    val risk_values: List<RiskValueOut>?,
-    val report_created: Instant,
-    val report_edited: Instant
+    val isOwner: Boolean,
+    val ownerIdent: String,
+    val serviceName: String,
+    val riskValues: List<RiskValueOut>?,
+    val reportCreated: Instant,
+    val reportEdited: Instant
 )
 
 @Serializable
 data class RiskReportData(
     val id: String,
-    val is_owner: Boolean,
-    val owner_ident: String,
-    val service_name: String,
-    val report_created: Instant,
-    val report_edited: Instant
+    val isOwner: Boolean,
+    val ownerIdent: String,
+    val serviceName: String,
+    val reportCreated: Instant,
+    val reportEdited: Instant
+)
+
+data class RiskMeasureData(
+    val id: String,
+    val riskAssessmentId: String?,
+    val measureCategory: String,
+    val measureStatus: String,
+
+    )
+
+@Serializable
+data class MeasureValue(
+    val id: String,
+    val riskAssessmentId: String,
+    val category: String,
+    val status: String
 )

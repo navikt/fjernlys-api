@@ -4,7 +4,7 @@ import kotliquery.Row
 import kotliquery.queryOf
 import kotliquery.sessionOf
 import kotliquery.using
-import no.nav.fjernlys.dbQueries.RiskMeasureRepository.RiskMeasureData
+import no.nav.fjernlys.plugins.MeasureValue
 import javax.sql.DataSource
 
 class RiskAssessmentRepository(val dataSource: DataSource) {
@@ -12,14 +12,14 @@ class RiskAssessmentRepository(val dataSource: DataSource) {
 
     fun insertIntoRiskAssessment(
         id: String,
-        report_id: String,
+        reportId: String,
         probability: Number,
         consequence: Number,
         dependent: Boolean,
-        risk_level: String,
+        riskLevel: String,
         category: String,
-        new_probability: Double?,
-        new_consequence: Double?
+        newProbability: Double?,
+        newConsequence: Double?
     ) {
 
         using(sessionOf(dataSource)) { session ->
@@ -34,14 +34,14 @@ class RiskAssessmentRepository(val dataSource: DataSource) {
                 queryOf(
                     sql,
                     id,
-                    report_id,
+                    reportId,
                     probability,
                     consequence,
                     dependent,
-                    risk_level,
+                    riskLevel,
                     category,
-                    new_probability,
-                    new_consequence
+                    newProbability,
+                    newConsequence
                 ).asUpdate
             )
 
@@ -59,14 +59,14 @@ class RiskAssessmentRepository(val dataSource: DataSource) {
                     .map { row ->
                         RiskAssessmentData(
                             id = row.string("id"),
-                            report_id = row.string("report_id"),
+                            reportId = row.string("report_id"),
                             probability = row.double("probability"),
                             consequence = row.double("consequence"),
                             dependent = row.boolean("dependent"),
-                            risk_level = row.string("risk_level"),
+                            riskLevel = row.string("risk_level"),
                             category = row.string("category"),
-                            new_probability = row.double("new_probability"),
-                            new_consequence = row.double("new_consequence")
+                            newProbability = row.double("new_probability"),
+                            newConsequence = row.double("new_consequence")
                         )
                     }
                     .asSingle
@@ -85,14 +85,14 @@ class RiskAssessmentRepository(val dataSource: DataSource) {
                     .map { row ->
                         RiskAssessmentData(
                             id = row.string("id"),
-                            report_id = row.string("report_id"),
+                            reportId = row.string("report_id"),
                             probability = row.double("probability"),
                             consequence = row.double("consequence"),
                             dependent = row.boolean("dependent"),
-                            risk_level = row.string("risk_level"),
+                            riskLevel = row.string("risk_level"),
                             category = row.string("category"),
-                            new_consequence = row.double("new_consequence"),
-                            new_probability = row.double("new_probability")
+                            newProbability = row.double("new_consequence"),
+                            newConsequence = row.double("new_probability")
                         )
                     }
                     .asList
@@ -102,28 +102,28 @@ class RiskAssessmentRepository(val dataSource: DataSource) {
 
     data class RiskAssessmentData(
         val id: String,
-        val report_id: String,
+        val reportId: String,
         val probability: Number,
         val consequence: Number,
         val dependent: Boolean,
-        val risk_level: String,
+        val riskLevel: String,
         val category: String,
-        val new_probability: Number?,
-        val new_consequence: Number?
+        val newProbability: Double?,
+        val newConsequence: Double?
     )
 
     fun mapRowToRiskAssessment(row: Row): RiskAssessmentData {
         // Convert a single row into a RisikoRapport object
         return RiskAssessmentData(
             id = row.string("id"),
-            report_id = row.string("report_id"),
+            reportId = row.string("report_id"),
             probability = row.double("probability"),
             consequence = row.double("consequence"),
             dependent = row.boolean("dependent"),
-            risk_level = row.string("risk_level"),
+            riskLevel = row.string("risk_level"),
             category = row.string("category"),
-            new_probability = row.double("new_probability"),
-            new_consequence = row.double("new_consequence")
+            newProbability = row.double("new_probability"),
+            newConsequence = row.double("new_consequence")
         )
     }
 

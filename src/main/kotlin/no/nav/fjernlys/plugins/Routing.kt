@@ -10,11 +10,11 @@ import kotlinx.datetime.*
 import kotlinx.serialization.Serializable
 import kotlinx.serialization.encodeToString
 import kotlinx.serialization.json.Json
-import no.nav.fjernlys.dbQueries.RiskAssessmentRepository
-import no.nav.fjernlys.dbQueries.RiskMeasureRepository
-import no.nav.fjernlys.dbQueries.RiskReportRepository
+import no.nav.fjernlys.dbQueries.*
 import java.util.UUID
 import javax.sql.DataSource
+import no.nav.fjernlys.plugins.RiskReportData
+
 
 
 fun Application.configureRouting(dataSource: DataSource) {
@@ -46,14 +46,14 @@ fun Application.configureRouting(dataSource: DataSource) {
 
             riskAssessmentRepository.insertIntoRiskAssessment(
                 id = riskAssessmentId,
-                report_id = reportId,
+                reportId = reportId,
                 probability = riskValue.probability,
                 consequence = riskValue.consequence,
                 dependent = riskValue.dependent,
-                risk_level = riskValue.riskLevel,
+                riskLevel = riskValue.riskLevel,
                 category = riskValue.category,
-                new_probability = riskValue.newProbability,
-                new_consequence = riskValue.newConsequence
+                newProbability = riskValue.newProbability,
+                newConsequence = riskValue.newConsequence
             )
 
             riskValue.measureValues?.forEach { measureValue ->
@@ -61,9 +61,9 @@ fun Application.configureRouting(dataSource: DataSource) {
 
                 riskMeasureRepository.insertIntoRiskMeasure(
                     id = measureId,
-                    risk_assessment_id = riskAssessmentId,
-                    measure_category = measureValue.category,
-                    measure_status = measureValue.status,
+                    riskAssessmentId = riskAssessmentId,
+                    measureCategory = measureValue.category,
+                    measureStatus = measureValue.status,
 
                     )
             }
@@ -86,9 +86,9 @@ fun Application.configureRouting(dataSource: DataSource) {
                 val measureValuesOut = riskMeasureList.map { measure ->
                     MeasureValueOut(
                         id = measure.id,
-                        risk_assessment_id = measure.risk_assessment_id,
-                        category = measure.measure_category,
-                        status = measure.measure_status
+                        riskAssessmentId = measure.riskAssessmentId,
+                        category = measure.category,
+                        status = measure.status,
                     )
                 }
 
@@ -97,22 +97,22 @@ fun Application.configureRouting(dataSource: DataSource) {
                     probability = assessment.probability.toDouble(),
                     consequence = assessment.consequence.toDouble(),
                     dependent = assessment.dependent,
-                    riskLevel = assessment.risk_level,
+                    riskLevel = assessment.riskLevel,
                     category = assessment.category,
                     measureValues = measureValuesOut,
-                    newConsequence = assessment.new_consequence?.toDouble(),
-                    newProbability = assessment.new_probability?.toDouble()
+                    newConsequence = assessment.newConsequence?.toDouble(),
+                    newProbability = assessment.newProbability?.toDouble()
                 )
             }
 
             OutgoingData(
                 id = report.id,
-                is_owner = report.is_owner,
-                owner_ident = report.owner_ident,
-                service_name = report.service_name,
-                risk_values = riskValues,
-                report_created = report.report_created,
-                report_edited = report.report_edited
+                isOwner = report.isOwner,
+                ownerIdent = report.ownerIdent,
+                serviceName = report.serviceName,
+                riskValues = riskValues,
+                reportCreated = report.reportCreated,
+                reportEdited = report.reportEdited
             )
         }
 
@@ -141,14 +141,14 @@ fun Application.configureRouting(dataSource: DataSource) {
                     ?: throw IllegalArgumentException("Missing parameter: service")
 
                 val riskReport = RiskReportRepository(dataSource)
-                val testListe: List<RiskReportRepository.RiskReportData> =
+                val testList: List<RiskReportData> =
                     riskReport.getRiskReportIdFromService(getReportService)
 
-                val jsonTestListe = Json.encodeToString(testListe)
+                val jsonTestList = Json.encodeToString(testList)
 
-                call.respond(HttpStatusCode.OK, jsonTestListe)
+                call.respond(HttpStatusCode.OK, jsonTestList)
 
-                println(jsonTestListe)
+                println(jsonTestList)
             } catch (e: Exception) {
                 e.printStackTrace()
                 call.respond(HttpStatusCode.InternalServerError, "An error occurred: ${e.message}")
@@ -165,6 +165,59 @@ fun Application.configureRouting(dataSource: DataSource) {
 
                 call.respond(HttpStatusCode.OK, allReports)
                 println(allReports)
+
+
+            } catch (e: Exception) {
+                e.printStackTrace()
+                call.respond(HttpStatusCode.InternalServerError, "An error occurred: ${e.message}")
+            }
+        }
+        get("/get/history") {
+            try {
+//  --------------------------- Risk Report ---------------------------
+                val getReportId = call.request.queryParameters["id"]
+                if (getReportId == null) {
+                    call.respond(HttpStatusCode.BadRequest, "Missing or malformed id")
+                    return@get
+                }
+                val historyRiskRepository = HistoryRiskReportRepository(dataSource)
+                val newId = UUID.randomUUID().toString()
+
+                val findNewestReport = historyRiskRepository.getLastEditedRiskReport(getReportId)
+
+                if (findNewestReport != null) {
+                    val insertRiskSuccess = historyRiskRepository.insertLastEntryIntoRiskReportHistory(findNewestReport, newId)
+                    if (insertRiskSuccess) {
+                        call.respond(HttpStatusCode.OK, "Entry successfully inserted into history.")
+                    } else {
+                        call.respond(HttpStatusCode.InternalServerError, "Failed to insert entry into history.")
+                    }
+                } else {
+                    call.respond(HttpStatusCode.NotFound, "Report not found")
+                }
+
+//  --------------------------- Risk Assessment ---------------------------
+                val historyAssessment = HistoryRiskAssessmentRepository(dataSource)
+                val findNewestAssessment = historyAssessment.getLastEditedRiskAssessment(getReportId)
+
+//  --------------------------- Measure ------------------------------------
+                val historyMeasure = HistoryRiskMeasureRepository(dataSource)
+
+                    findNewestAssessment.forEach { assessment ->
+                        val newAssessmentId = UUID.randomUUID().toString()
+                        val findMeasure = historyMeasure.getLastEditedRiskMeasure(assessment.id)
+
+                        historyAssessment.insertLastEntryIntoRiskAssessmentHistory(assessment, newId, newAssessmentId)
+
+                        // Move the check for measures inside the assessment loop
+                        println("HALLLLLLLAAA" + findMeasure)
+                            findMeasure.forEach { measure ->
+                                historyMeasure.insertLastEntryIntoRiskMeasureHistory(measure, newAssessmentId)
+                            }
+                    }
+
+
+
 
 
             } catch (e: Exception) {

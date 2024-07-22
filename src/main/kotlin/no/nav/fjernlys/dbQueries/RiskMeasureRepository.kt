@@ -6,6 +6,8 @@ import kotliquery.sessionOf
 import kotliquery.using
 import no.nav.fjernlys.NaisEnvironment
 import no.nav.fjernlys.createDataSource
+import no.nav.fjernlys.plugins.MeasureValue
+import no.nav.fjernlys.plugins.MeasureValueOut
 import javax.sql.DataSource
 
 class RiskMeasureRepository(val dataSource: DataSource) {
@@ -13,9 +15,9 @@ class RiskMeasureRepository(val dataSource: DataSource) {
 
     fun insertIntoRiskMeasure(
         id: String,
-        risk_assessment_id: String,
-        measure_category: String,
-        measure_status: String,
+        riskAssessmentId: String,
+        measureCategory: String,
+        measureStatus: String,
     ) {
         using(sessionOf(dataSource)) { session ->
 
@@ -29,15 +31,15 @@ class RiskMeasureRepository(val dataSource: DataSource) {
                 queryOf(
                     sql,
                     id,
-                    risk_assessment_id,
-                    measure_category,
-                    measure_status
+                    riskAssessmentId,
+                    measureCategory,
+                    measureStatus
                 ).asUpdate
             )
         }
     }
 
-    fun getRiskMeasureFromId(id: String): RiskMeasureData? {
+    fun getRiskMeasureFromId(id: String): MeasureValueOut? {
         val sql = """
         SELECT * FROM risk_measure WHERE id = :id
     """.trimIndent()
@@ -46,11 +48,11 @@ class RiskMeasureRepository(val dataSource: DataSource) {
             session.run(
                 queryOf(sql, mapOf("id" to id))
                     .map { row ->
-                        RiskMeasureData(
+                        MeasureValueOut(
                             id = row.string("id"),
-                            risk_assessment_id = row.string("risk_assessment_id"),
-                            measure_category = row.string("measure_category"),
-                            measure_status = row.string("measure_status"),
+                            riskAssessmentId = row.string("risk_assessment_id"),
+                            category = row.string("measure_category"),
+                            status = row.string("measure_status"),
                         )
                     }
                     .asSingle
@@ -58,7 +60,7 @@ class RiskMeasureRepository(val dataSource: DataSource) {
         }
     }
 
-    fun getRiskMeasureFromAssessmentId(risk_assessment_id: String): List<RiskMeasureData> {
+    fun getRiskMeasureFromAssessmentId(risk_assessment_id: String): List<MeasureValueOut> {
         val sql = """
         SELECT * FROM risk_measure WHERE risk_assessment_id = :risk_assessment_id
     """.trimIndent()
@@ -67,11 +69,11 @@ class RiskMeasureRepository(val dataSource: DataSource) {
             session.run(
                 queryOf(sql, mapOf("risk_assessment_id" to risk_assessment_id))
                     .map { row ->
-                        RiskMeasureData(
+                        MeasureValueOut(
                             id = row.string("id"),
-                            risk_assessment_id = row.string("risk_assessment_id"),
-                            measure_category = row.string("measure_category"),
-                            measure_status = row.string("measure_status"),
+                            riskAssessmentId = row.string("risk_assessment_id"),
+                            category = row.string("measure_category"),
+                            status = row.string("measure_status"),
                         )
                     }
                     .asList
@@ -79,11 +81,5 @@ class RiskMeasureRepository(val dataSource: DataSource) {
         }
     }
 
-    data class RiskMeasureData(
-        val id: String,
-        val risk_assessment_id: String,
-        val measure_category: String,
-        val measure_status: String,
 
-        )
 }

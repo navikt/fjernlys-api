@@ -4,7 +4,7 @@ import kotliquery.Row
 import kotliquery.queryOf
 import kotliquery.sessionOf
 import kotliquery.using
-import no.nav.fjernlys.plugins.RiskMeasureData
+import no.nav.fjernlys.plugins.MeasureValue
 import javax.sql.DataSource
 
 class RiskAssessmentRepository(val dataSource: DataSource) {

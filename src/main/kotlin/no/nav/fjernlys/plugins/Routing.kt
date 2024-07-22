@@ -87,8 +87,8 @@ fun Application.configureRouting(dataSource: DataSource) {
                     MeasureValueOut(
                         id = measure.id,
                         riskAssessmentId = measure.riskAssessmentId,
-                        category = measure.measureCategory,
-                        status = measure.measureStatus,
+                        category = measure.category,
+                        status = measure.status,
                     )
                 }
 
@@ -181,10 +181,12 @@ fun Application.configureRouting(dataSource: DataSource) {
                     return@get
                 }
                 val historyRiskRepository = HistoryRiskReportRepository(dataSource)
+                val newId = UUID.randomUUID().toString()
+
                 val findNewestReport = historyRiskRepository.getLastEditedRiskReport(getReportId)
 
                 if (findNewestReport != null) {
-                    val insertRiskSuccess = historyRiskRepository.insertLastEntryIntoRiskReportHistory(findNewestReport)
+                    val insertRiskSuccess = historyRiskRepository.insertLastEntryIntoRiskReportHistory(findNewestReport, newId)
                     if (insertRiskSuccess) {
                         call.respond(HttpStatusCode.OK, "Entry successfully inserted into history.")
                     } else {
@@ -195,18 +197,29 @@ fun Application.configureRouting(dataSource: DataSource) {
                 }
 
 //  --------------------------- Risk Assessment ---------------------------
-                val historyAssRepository = HistoryRiskAssessmentRepository(dataSource)
-                val findNewestAssessment = historyAssRepository.getLastEditedRiskAssessment(getReportId)
-                if (findNewestAssessment != null) {
-                    val insertAssessmentSuccess = historyAssRepository.insertLastEntryIntoRiskAssessmentHistory(findNewestAssessment)
-                    if (insertAssessmentSuccess) {
-                        call.respond(HttpStatusCode.OK, "Entry successfully inserted into history.")
-                    } else {
-                        call.respond(HttpStatusCode.InternalServerError, "Failed to insert entry into history.")
+                val historyAssessment = HistoryRiskAssessmentRepository(dataSource)
+                val findNewestAssessment = historyAssessment.getLastEditedRiskAssessment(getReportId)
+
+//  --------------------------- Measure ------------------------------------
+                val historyMeasure = HistoryRiskMeasureRepository(dataSource)
+
+                    findNewestAssessment.forEach { assessment ->
+                        val newAssessmentId = UUID.randomUUID().toString()
+                        val findMeasure = historyMeasure.getLastEditedRiskMeasure(assessment.id)
+
+                        historyAssessment.insertLastEntryIntoRiskAssessmentHistory(assessment, newId, newAssessmentId)
+
+                        // Move the check for measures inside the assessment loop
+                        println("HALLLLLLLAAA" + findMeasure)
+                            findMeasure.forEach { measure ->
+                                historyMeasure.insertLastEntryIntoRiskMeasureHistory(measure, newAssessmentId)
+                            }
                     }
-                } else {
-                    call.respond(HttpStatusCode.NotFound, "Report not found")
-                }
+
+
+
+
+
             } catch (e: Exception) {
                 e.printStackTrace()
                 call.respond(HttpStatusCode.InternalServerError, "An error occurred: ${e.message}")

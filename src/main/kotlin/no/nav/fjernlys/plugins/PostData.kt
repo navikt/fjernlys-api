@@ -1,13 +1,13 @@
 package no.nav.fjernlys.plugins
+
 import kotlinx.datetime.Instant
 import kotlinx.serialization.Serializable
 
-
-//@Serializable
-//data class MeasureValue(
-//    val category: String,
-//    val status: String,
-//)
+@Serializable
+data class MeasureValue(
+    val category: String,
+    val status: String,
+)
 
 @Serializable
 data class MeasureValueOut(
@@ -15,19 +15,6 @@ data class MeasureValueOut(
     val riskAssessmentId: String?,
     val category: String,
     val status: String,
-)
-
-@Serializable
-data class RiskValueOut(
-    val id: String,
-    val probability: Double,
-    val consequence: Double,
-    val dependent: Boolean,
-    val riskLevel: String,
-    val category: String,
-    val measureValues: List<MeasureValueOut>?,
-    val newConsequence: Double? = null,
-    val newProbability: Double? = null
 )
 
 @Serializable
@@ -50,6 +37,21 @@ data class IncomingData(
     val riskValues: List<RiskValue>
 )
 
+
+
+@Serializable
+data class RiskValueOut(
+    val id: String,
+    val probability: Double,
+    val consequence: Double,
+    val dependent: Boolean,
+    val riskLevel: String,
+    val category: String,
+    val measureValues: List<MeasureValueOut>?,
+    val newConsequence: Double? = null,
+    val newProbability: Double? = null
+)
+
 @Serializable
 data class OutgoingData(
     val id: String,
@@ -70,6 +72,7 @@ data class RiskReportData(
     val reportCreated: Instant,
     val reportEdited: Instant,
 )
+
 @Serializable
 data class RiskAssessmentData (
     val id: String,
@@ -79,22 +82,6 @@ data class RiskAssessmentData (
     val dependent: Boolean,
     val riskLevel: String,
     val category: String,
-    val newProbability: Double,
-    val newConsequence: Double,
-)
-
-data class RiskMeasureData(
-    val id: String,
-    val riskAssessmentId: String?,
-    val measureCategory: String,
-    val measureStatus: String,
-
-    )
-
-@Serializable
-data class MeasureValue(
-    val id: String,
-    val riskAssessmentId: String,
-    val category: String,
-    val status: String
+    val newConsequence: Double?,
+    val newProbability: Double?,
 )

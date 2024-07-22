@@ -9,16 +9,15 @@ import kotliquery.using
 
 class HistoryRiskAssessmentRepository(val dataSource: DataSource) {
 
-    fun getLastEditedRiskAssessment(id: String): RiskAssessmentData? {
+    fun getLastEditedRiskAssessment(reportId: String): List<RiskAssessmentData> {
         val sql = """
-            SELECT * 
-            FROM risk_assessment 
-            WHERE report_id = :id
+        SELECT * FROM risk_assessment WHERE report_id = :reportId
+
         """.trimIndent()
 
         return using(sessionOf(dataSource)) { session ->
             session.run(
-                queryOf(sql, mapOf("id" to id))
+                queryOf(sql, mapOf("reportId" to reportId))
                     .map { row ->
                         RiskAssessmentData(
                             id = row.string("id"),
@@ -32,35 +31,44 @@ class HistoryRiskAssessmentRepository(val dataSource: DataSource) {
                             newConsequence = row.double("new_consequence")
                         )
                     }
-                    .asSingle
+                .asList
             )
         }
     }
 
-    fun insertLastEntryIntoRiskAssessmentHistory(riskAssessment: RiskAssessmentData): Boolean {
-        val newId = UUID.randomUUID().toString()
+    fun insertLastEntryIntoRiskAssessmentHistory(riskAssessment: RiskAssessmentData, historyReportId: String, newAssesmentId: String): Boolean {
         val sql = """
-            INSERT INTO history_risk_assessment
-            (id, report_id, probability, consequence, dependent, risk_level, category, new_probability, new_consequence)
-            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)
+            INSERT INTO history_risk_assessment (
+                id,
+                history_report_id,
+                probability,
+                consequence,
+                dependent,
+                risk_level,
+                category,
+                new_consequence,
+                new_probability
+            ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)
         """.trimIndent()
 
         return using(sessionOf(dataSource)) { session ->
             val result = session.run(
                 queryOf(
                     sql,
-                    newId,
-                    riskAssessment.reportId,
+                    newAssesmentId,
+                    historyReportId,
                     riskAssessment.probability,
                     riskAssessment.consequence,
                     riskAssessment.dependent,
                     riskAssessment.riskLevel,
                     riskAssessment.category,
-                    riskAssessment.newProbability,
-                    riskAssessment.newConsequence
+                    riskAssessment.newConsequence,
+                    riskAssessment.newProbability
                 ).asUpdate
             )
             result > 0
         }
     }
+
+
 }

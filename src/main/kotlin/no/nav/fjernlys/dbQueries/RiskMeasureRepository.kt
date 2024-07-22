@@ -6,7 +6,8 @@ import kotliquery.sessionOf
 import kotliquery.using
 import no.nav.fjernlys.NaisEnvironment
 import no.nav.fjernlys.createDataSource
-import no.nav.fjernlys.plugins.RiskMeasureData
+import no.nav.fjernlys.plugins.MeasureValue
+import no.nav.fjernlys.plugins.MeasureValueOut
 import javax.sql.DataSource
 
 class RiskMeasureRepository(val dataSource: DataSource) {
@@ -38,7 +39,7 @@ class RiskMeasureRepository(val dataSource: DataSource) {
         }
     }
 
-    fun getRiskMeasureFromId(id: String): RiskMeasureData? {
+    fun getRiskMeasureFromId(id: String): MeasureValueOut? {
         val sql = """
         SELECT * FROM risk_measure WHERE id = :id
     """.trimIndent()
@@ -47,11 +48,11 @@ class RiskMeasureRepository(val dataSource: DataSource) {
             session.run(
                 queryOf(sql, mapOf("id" to id))
                     .map { row ->
-                        RiskMeasureData(
+                        MeasureValueOut(
                             id = row.string("id"),
                             riskAssessmentId = row.string("risk_assessment_id"),
-                            measureCategory = row.string("measure_category"),
-                            measureStatus = row.string("measure_status"),
+                            category = row.string("measure_category"),
+                            status = row.string("measure_status"),
                         )
                     }
                     .asSingle
@@ -59,7 +60,7 @@ class RiskMeasureRepository(val dataSource: DataSource) {
         }
     }
 
-    fun getRiskMeasureFromAssessmentId(risk_assessment_id: String): List<RiskMeasureData> {
+    fun getRiskMeasureFromAssessmentId(risk_assessment_id: String): List<MeasureValueOut> {
         val sql = """
         SELECT * FROM risk_measure WHERE risk_assessment_id = :risk_assessment_id
     """.trimIndent()
@@ -68,11 +69,11 @@ class RiskMeasureRepository(val dataSource: DataSource) {
             session.run(
                 queryOf(sql, mapOf("risk_assessment_id" to risk_assessment_id))
                     .map { row ->
-                        RiskMeasureData(
+                        MeasureValueOut(
                             id = row.string("id"),
                             riskAssessmentId = row.string("risk_assessment_id"),
-                            measureCategory = row.string("measure_category"),
-                            measureStatus = row.string("measure_status"),
+                            category = row.string("measure_category"),
+                            status = row.string("measure_status"),
                         )
                     }
                     .asList

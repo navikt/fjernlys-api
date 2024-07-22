@@ -36,11 +36,10 @@ class HistoryRiskReportRepository(val dataSource: DataSource) {
         }
     }
 
-    fun insertLastEntryIntoRiskReportHistory(reportData: RiskReportData): Boolean {
-        val newId = UUID.randomUUID().toString()
+    fun insertLastEntryIntoRiskReportHistory(reportData: RiskReportData, newId: String): Boolean {
         val sql = """
             INSERT INTO history_risk_report
-            (id, current_report_id, is_owner, owner_ident, service_name, report_created, report_edited)
+            (id, report_id, is_owner, owner_ident, service_name, report_created, report_edited)
             VALUES (?, ?, ?, ?, ?, ?, ?)
         """.trimIndent()
 

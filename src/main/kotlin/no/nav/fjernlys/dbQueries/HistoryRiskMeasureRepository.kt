@@ -9,7 +9,7 @@ import no.nav.fjernlys.plugins.RiskAssessmentData
 import java.util.*
 import javax.sql.DataSource
 
-class HistoryRiskMeasureRepository (val datasource: DataSource) {
+class HistoryRiskMeasureRepository(val datasource: DataSource) {
 
     fun getLastEditedRiskMeasure(assessmentId: String): List<MeasureValueOut> {
         val sql = """
@@ -30,7 +30,7 @@ class HistoryRiskMeasureRepository (val datasource: DataSource) {
                             status = row.string("measure_status"),
                         )
                     }
-                .asList
+                    .asList
             )
         }
     }
@@ -59,6 +59,27 @@ class HistoryRiskMeasureRepository (val datasource: DataSource) {
                 ).asUpdate
             )
             result > 0
+        }
+    }
+
+    fun getHistoryRiskMeasureFromAssessmentId(historyAssessmentId: String): List<MeasureValueOut> {
+        val sql = """
+        SELECT * FROM history_risk_measure WHERE risk_assessment_id = :historyAssessmentId
+    """.trimIndent()
+
+        return using(sessionOf(dataSource)) { session ->
+            session.run(
+                queryOf(sql, mapOf("historyAssessmentId" to historyAssessmentId))
+                    .map { row ->
+                        MeasureValueOut(
+                            id = row.string("id"),
+                            riskAssessmentId = row.string("risk_assessment_id"),
+                            category = row.string("category"),
+                            status = row.string("status"),
+                        )
+                    }
+                    .asList
+            )
         }
     }
 }

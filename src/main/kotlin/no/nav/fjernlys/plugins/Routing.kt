@@ -1,17 +1,22 @@
 package no.nav.fjernlys.plugins
 
 import io.ktor.http.*
-import no.nav.fjernlys.appstatus.health
 import io.ktor.server.application.*
 import io.ktor.server.request.*
 import io.ktor.server.response.*
 import io.ktor.server.routing.*
-import kotlinx.datetime.*
+import kotlinx.datetime.Clock
+import kotlinx.datetime.Instant
 import kotlinx.serialization.encodeToString
 import kotlinx.serialization.json.Json
-import no.nav.fjernlys.dbQueries.*
+import no.nav.fjernlys.appstatus.health
+import no.nav.fjernlys.dbQueries.RiskAssessmentRepository
+import no.nav.fjernlys.dbQueries.RiskMeasureRepository
+import no.nav.fjernlys.dbQueries.RiskReportRepository
+import no.nav.fjernlys.functions.AccessReports
+import no.nav.fjernlys.functions.UpdateHistoryTables
 import no.nav.fjernlys.functions.UpdateRiskLevelData
-import java.util.UUID
+import java.util.*
 import javax.sql.DataSource
 
 
@@ -29,14 +34,10 @@ fun Application.configureRouting(dataSource: DataSource) {
         var serviceName = ""
 
         val reportId = UUID.randomUUID().toString()
+
         if (incomingData != null) {
             riskReportRepository.insertIntoRiskReport(
-                reportId,
-                incomingData!!.ownerData,
-                incomingData!!.notOwnerData,
-                incomingData!!.serviceData,
-                date,
-                date
+                reportId, incomingData!!.ownerData, incomingData!!.notOwnerData, incomingData!!.serviceData, date, date
             )
             serviceName = incomingData!!.serviceData
         }
@@ -68,6 +69,7 @@ fun Application.configureRouting(dataSource: DataSource) {
                     )
             }
         }
+        UpdateHistoryTables(dataSource).updateHistoryReport(reportId)
         UpdateRiskLevelData(dataSource).updateRiskLevelByService(serviceName)
     }
 
@@ -124,6 +126,7 @@ fun Application.configureRouting(dataSource: DataSource) {
     routing {
         health()
 
+//---------- API call for submitting a form ----------
         post("/submit") {
             try {
                 val postData = call.receive<IncomingData>()
@@ -136,88 +139,57 @@ fun Application.configureRouting(dataSource: DataSource) {
                 e.printStackTrace()
             }
         }
-
+//---------- API call for editing or ???? ----------
         get("/get/reports") {
             try {
-                val getReportService = call.request.queryParameters["service"]
-                    ?: throw IllegalArgumentException("Missing parameter: service")
+                val service = call.request.queryParameters["service"]
+                val id = call.request.queryParameters["id"]
 
-                val riskReport = RiskReportRepository(dataSource)
-                val testList: List<RiskReportData> =
-                    riskReport.getAllRiskReportsByService(getReportService)
+                if (service != null) {
 
-                val jsonTestList = Json.encodeToString(testList)
+                    val riskReport = RiskReportRepository(dataSource)
+                    val reportList: List<RiskReportData> = riskReport.getAllRiskReportsByService(service)
+                    val jsonReportList = Json.encodeToString(reportList)
 
-                call.respond(HttpStatusCode.OK, jsonTestList)
+                    call.respond(HttpStatusCode.OK, jsonReportList)
+                } else if (id != null) {
 
-                println(jsonTestList)
+                    val accessReports = AccessReports(dataSource)
+                    val report = accessReports.getFullReportById(id)
+
+                    call.respond(HttpStatusCode.OK, report)
+
+                } else {
+                    throw IllegalArgumentException("Missing parameter: service or id")
+                }
             } catch (e: Exception) {
                 e.printStackTrace()
                 call.respond(HttpStatusCode.InternalServerError, "An error occurred: ${e.message}")
             }
         }
 
+//---------- API call for dashboard table ----------
         get("/get/all") {
             try {
                 val getReportService = call.request.queryParameters["service"]
                     ?: throw IllegalArgumentException("Missing parameter: service")
 
-                val allReports = getAllReports(getReportService)
-
-
+                val allReports = AccessReports(dataSource).getAllCurrentReportsByService(getReportService)
                 call.respond(HttpStatusCode.OK, allReports)
-                println(allReports)
-
 
             } catch (e: Exception) {
                 e.printStackTrace()
                 call.respond(HttpStatusCode.InternalServerError, "An error occurred: ${e.message}")
             }
         }
+//---------- API call for history table ----------
         get("/get/history") {
             try {
-//  --------------------------- Risk Report ---------------------------
-                val getReportId = call.request.queryParameters["id"]
-                if (getReportId == null) {
-                    call.respond(HttpStatusCode.BadRequest, "Missing or malformed id")
-                    return@get
-                }
-                val historyRiskRepository = HistoryRiskReportRepository(dataSource)
-                val newId = UUID.randomUUID().toString()
+                val getReportId =
+                    call.request.queryParameters["id"] ?: throw IllegalArgumentException("Missing parameter: id")
 
-                val findNewestReport = historyRiskRepository.getLastEditedRiskReport(getReportId)
-
-                if (findNewestReport != null) {
-                    val insertRiskSuccess =
-                        historyRiskRepository.insertLastEntryIntoRiskReportHistory(findNewestReport, newId)
-                    if (insertRiskSuccess) {
-                        call.respond(HttpStatusCode.OK, "Entry successfully inserted into history.")
-                    } else {
-                        call.respond(HttpStatusCode.InternalServerError, "Failed to insert entry into history.")
-                    }
-                } else {
-                    call.respond(HttpStatusCode.NotFound, "Report not found")
-                }
-
-//  --------------------------- Risk Assessment ---------------------------
-                val historyAssessment = HistoryRiskAssessmentRepository(dataSource)
-                val findNewestAssessment = historyAssessment.getLastEditedRiskAssessment(getReportId)
-
-//  --------------------------- Measure ------------------------------------
-                val historyMeasure = HistoryRiskMeasureRepository(dataSource)
-
-                findNewestAssessment.forEach { assessment ->
-                    val newAssessmentId = UUID.randomUUID().toString()
-                    val findMeasure = historyMeasure.getLastEditedRiskMeasure(assessment.id)
-
-                    historyAssessment.insertLastEntryIntoRiskAssessmentHistory(assessment, newId, newAssessmentId)
-
-                    // Move the check for measures inside the assessment loop
-                    println("HALLLLLLLAAA" + findMeasure)
-                    findMeasure.forEach { measure ->
-                        historyMeasure.insertLastEntryIntoRiskMeasureHistory(measure, newAssessmentId)
-                    }
-                }
+                val result = AccessReports(dataSource).getAllHistoryReports(getReportId)
+                call.respond(HttpStatusCode.OK, result)
 
 
             } catch (e: Exception) {
@@ -225,6 +197,9 @@ fun Application.configureRouting(dataSource: DataSource) {
                 call.respond(HttpStatusCode.InternalServerError, "An error occurred: ${e.message}")
             }
         }
+
+
+//---------- API call for doughnut charts ----------
         get("/get/risk-levels") {
             try {
                 val riskLevelServiceName = call.request.queryParameters["service"]

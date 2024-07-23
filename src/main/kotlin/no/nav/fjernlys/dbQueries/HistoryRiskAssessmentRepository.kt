@@ -31,12 +31,16 @@ class HistoryRiskAssessmentRepository(val dataSource: DataSource) {
                             newConsequence = row.double("new_consequence")
                         )
                     }
-                .asList
+                    .asList
             )
         }
     }
 
-    fun insertLastEntryIntoRiskAssessmentHistory(riskAssessment: RiskAssessmentData, historyReportId: String, newAssesmentId: String): Boolean {
+    fun insertLastEntryIntoRiskAssessmentHistory(
+        riskAssessment: RiskAssessmentData,
+        historyReportId: String,
+        newAssesmentId: String
+    ): Boolean {
         val sql = """
             INSERT INTO history_risk_assessment (
                 id,
@@ -70,5 +74,30 @@ class HistoryRiskAssessmentRepository(val dataSource: DataSource) {
         }
     }
 
+    fun getHistoryRiskAssessmentFromHistoryReportId(historyReportId: String): List<RiskAssessmentRepository.RiskAssessmentData> {
+        val sql = """
+        SELECT * FROM history_risk_assessment WHERE history_report_id = :historyReportId
+    """.trimIndent()
+
+        return using(sessionOf(dataSource)) { session ->
+            session.run(
+                queryOf(sql, mapOf("historyReportId" to historyReportId))
+                    .map { row ->
+                        RiskAssessmentRepository.RiskAssessmentData(
+                            id = row.string("id"),
+                            reportId = row.string("history_report_id"),
+                            probability = row.double("probability"),
+                            consequence = row.double("consequence"),
+                            dependent = row.boolean("dependent"),
+                            riskLevel = row.string("risk_level"),
+                            category = row.string("category"),
+                            newProbability = row.double("new_consequence"),
+                            newConsequence = row.double("new_probability")
+                        )
+                    }
+                    .asList
+            )
+        }
+    }
 
 }

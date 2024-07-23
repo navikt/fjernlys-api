@@ -26,6 +26,7 @@ fun Application.configureRouting(dataSource: DataSource) {
         val riskReportRepository = RiskReportRepository(dataSource)
         val riskAssessmentRepository = RiskAssessmentRepository(dataSource)
         val riskMeasureRepository = RiskMeasureRepository(dataSource)
+        var serviceName = ""
 
         val reportId = UUID.randomUUID().toString()
         if (incomingData != null) {
@@ -37,6 +38,7 @@ fun Application.configureRouting(dataSource: DataSource) {
                 date,
                 date
             )
+            serviceName = incomingData!!.serviceData
         }
 
         incomingData?.riskValues?.forEach { riskValue ->
@@ -66,6 +68,7 @@ fun Application.configureRouting(dataSource: DataSource) {
                     )
             }
         }
+        UpdateRiskLevelData(dataSource).updateRiskLevelByService(serviceName)
     }
 
     fun getAllReports(service: String): String {
@@ -128,6 +131,7 @@ fun Application.configureRouting(dataSource: DataSource) {
                 incomingData = postData
                 call.respond(HttpStatusCode.OK, mapOf("message" to "Data received successfully"))
                 test()
+
             } catch (e: Exception) {
                 e.printStackTrace()
             }

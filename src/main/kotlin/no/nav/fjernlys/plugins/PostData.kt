@@ -2,6 +2,7 @@ package no.nav.fjernlys.plugins
 
 import kotlinx.datetime.Instant
 import kotlinx.serialization.Serializable
+import org.postgresql.shaded.com.ongres.scram.common.bouncycastle.pbkdf2.Integers
 
 @Serializable
 data class MeasureValue(
@@ -36,7 +37,6 @@ data class IncomingData(
     val serviceData: String,
     val riskValues: List<RiskValue>
 )
-
 
 
 @Serializable
@@ -74,7 +74,7 @@ data class RiskReportData(
 )
 
 @Serializable
-data class RiskAssessmentData (
+data class RiskAssessmentData(
     val id: String,
     val reportId: String,
     val probability: Double,
@@ -84,4 +84,26 @@ data class RiskAssessmentData (
     val category: String,
     val newConsequence: Double?,
     val newProbability: Double?,
+)
+
+@Serializable
+data class RiskLevelData(
+    val serviceName: String,
+    val high: Int,
+    val moderate: Int,
+    val low: Int
+)
+
+@Serializable
+data class RiskLevelCounts(
+    var high: Int = 0,
+    var moderate: Int = 0,
+    var low: Int = 0
+)
+
+@Serializable
+data class RiskLevelCountNorsk(
+    var Høy: Int = 0,
+    var Moderat: Int = 0,
+    var Lav: Int = 0
 )

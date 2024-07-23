@@ -7,13 +7,12 @@ import io.ktor.server.request.*
 import io.ktor.server.response.*
 import io.ktor.server.routing.*
 import kotlinx.datetime.*
-import kotlinx.serialization.Serializable
 import kotlinx.serialization.encodeToString
 import kotlinx.serialization.json.Json
 import no.nav.fjernlys.dbQueries.*
+import no.nav.fjernlys.functions.UpdateRiskLevelData
 import java.util.UUID
 import javax.sql.DataSource
-import no.nav.fjernlys.plugins.RiskReportData
 
 
 fun Application.configureRouting(dataSource: DataSource) {
@@ -74,7 +73,7 @@ fun Application.configureRouting(dataSource: DataSource) {
         val riskAssessmentRepository = RiskAssessmentRepository(dataSource)
         val riskMeasureRepository = RiskMeasureRepository(dataSource)
 
-        val reportList = riskReportRepository.getRiskReportIdFromService(service)
+        val reportList = riskReportRepository.getAllRiskReportsByService(service)
 
         val result = reportList.map { report ->
             val riskAssessmentList = riskAssessmentRepository.getRiskAssessmentFromReportId(report.id)
@@ -141,7 +140,7 @@ fun Application.configureRouting(dataSource: DataSource) {
 
                 val riskReport = RiskReportRepository(dataSource)
                 val testList: List<RiskReportData> =
-                    riskReport.getRiskReportIdFromService(getReportService)
+                    riskReport.getAllRiskReportsByService(getReportService)
 
                 val jsonTestList = Json.encodeToString(testList)
 
@@ -224,15 +223,14 @@ fun Application.configureRouting(dataSource: DataSource) {
         }
         get("/get/risk-levels") {
             try {
-                val getReportService = call.request.queryParameters["service"]
+                val riskLevelServiceName = call.request.queryParameters["service"]
                     ?: throw IllegalArgumentException("Missing parameter: service")
 
-                val test = getReportService
-                val riskLevels = GetRiskLevelData(dataSource).getRiskLevel()
 
+                val riskLevels: RiskLevelData =
+                    UpdateRiskLevelData(dataSource).getRiskLevelValuesByService(riskLevelServiceName)
 
                 call.respond(HttpStatusCode.OK, riskLevels)
-                println(riskLevels)
 
 
             } catch (e: Exception) {

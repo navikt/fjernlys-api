@@ -100,7 +100,7 @@ class RiskReportRepository(val dataSource: DataSource) {
         }
     }
 
-    fun getRiskReportIdFromService(service_name: String): List<RiskReportData> {
+    fun getAllRiskReportsByService(service_name: String): List<RiskReportData> {
         val sql = """
         SELECT * 
         FROM risk_report 

@@ -7,14 +7,12 @@ import io.ktor.server.request.*
 import io.ktor.server.response.*
 import io.ktor.server.routing.*
 import kotlinx.datetime.*
-import kotlinx.serialization.Serializable
 import kotlinx.serialization.encodeToString
 import kotlinx.serialization.json.Json
 import no.nav.fjernlys.dbQueries.*
+import no.nav.fjernlys.functions.UpdateRiskLevelData
 import java.util.UUID
 import javax.sql.DataSource
-import no.nav.fjernlys.plugins.RiskReportData
-
 
 
 fun Application.configureRouting(dataSource: DataSource) {
@@ -75,10 +73,10 @@ fun Application.configureRouting(dataSource: DataSource) {
         val riskAssessmentRepository = RiskAssessmentRepository(dataSource)
         val riskMeasureRepository = RiskMeasureRepository(dataSource)
 
-        val reportList = riskReportRepository.getRiskReportIdFromService(service)
+        val reportList = riskReportRepository.getAllRiskReportsByService(service)
 
         val result = reportList.map { report ->
-            val riskAssessmentList = riskAssessmentRepository.getRiskMeasureFromAssessmentId(report.id)
+            val riskAssessmentList = riskAssessmentRepository.getRiskAssessmentFromReportId(report.id)
 
             val riskValues = riskAssessmentList.map { assessment ->
                 val riskMeasureList = riskMeasureRepository.getRiskMeasureFromAssessmentId(assessment.id)
@@ -142,7 +140,7 @@ fun Application.configureRouting(dataSource: DataSource) {
 
                 val riskReport = RiskReportRepository(dataSource)
                 val testList: List<RiskReportData> =
-                    riskReport.getRiskReportIdFromService(getReportService)
+                    riskReport.getAllRiskReportsByService(getReportService)
 
                 val jsonTestList = Json.encodeToString(testList)
 
@@ -186,7 +184,8 @@ fun Application.configureRouting(dataSource: DataSource) {
                 val findNewestReport = historyRiskRepository.getLastEditedRiskReport(getReportId)
 
                 if (findNewestReport != null) {
-                    val insertRiskSuccess = historyRiskRepository.insertLastEntryIntoRiskReportHistory(findNewestReport, newId)
+                    val insertRiskSuccess =
+                        historyRiskRepository.insertLastEntryIntoRiskReportHistory(findNewestReport, newId)
                     if (insertRiskSuccess) {
                         call.respond(HttpStatusCode.OK, "Entry successfully inserted into history.")
                     } else {
@@ -203,21 +202,35 @@ fun Application.configureRouting(dataSource: DataSource) {
 //  --------------------------- Measure ------------------------------------
                 val historyMeasure = HistoryRiskMeasureRepository(dataSource)
 
-                    findNewestAssessment.forEach { assessment ->
-                        val newAssessmentId = UUID.randomUUID().toString()
-                        val findMeasure = historyMeasure.getLastEditedRiskMeasure(assessment.id)
+                findNewestAssessment.forEach { assessment ->
+                    val newAssessmentId = UUID.randomUUID().toString()
+                    val findMeasure = historyMeasure.getLastEditedRiskMeasure(assessment.id)
 
-                        historyAssessment.insertLastEntryIntoRiskAssessmentHistory(assessment, newId, newAssessmentId)
+                    historyAssessment.insertLastEntryIntoRiskAssessmentHistory(assessment, newId, newAssessmentId)
 
-                        // Move the check for measures inside the assessment loop
-                        println("HALLLLLLLAAA" + findMeasure)
-                            findMeasure.forEach { measure ->
-                                historyMeasure.insertLastEntryIntoRiskMeasureHistory(measure, newAssessmentId)
-                            }
+                    // Move the check for measures inside the assessment loop
+                    println("HALLLLLLLAAA" + findMeasure)
+                    findMeasure.forEach { measure ->
+                        historyMeasure.insertLastEntryIntoRiskMeasureHistory(measure, newAssessmentId)
                     }
+                }
 
 
+            } catch (e: Exception) {
+                e.printStackTrace()
+                call.respond(HttpStatusCode.InternalServerError, "An error occurred: ${e.message}")
+            }
+        }
+        get("/get/risk-levels") {
+            try {
+                val riskLevelServiceName = call.request.queryParameters["service"]
+                    ?: throw IllegalArgumentException("Missing parameter: service")
 
+
+                val riskLevels: RiskLevelData =
+                    UpdateRiskLevelData(dataSource).getRiskLevelValuesByService(riskLevelServiceName)
+
+                call.respond(HttpStatusCode.OK, riskLevels)
 
 
             } catch (e: Exception) {

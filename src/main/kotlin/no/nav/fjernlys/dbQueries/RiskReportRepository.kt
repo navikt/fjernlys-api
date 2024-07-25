@@ -6,7 +6,7 @@ import kotliquery.queryOf
 import kotliquery.sessionOf
 import kotliquery.using
 import javax.sql.DataSource
-import kotlinx.serialization.Serializable
+import no.nav.fjernlys.plugins.OutgoingData
 import no.nav.fjernlys.plugins.RiskReportData
 
 class RiskReportRepository(val dataSource: DataSource) {
@@ -122,10 +122,26 @@ class RiskReportRepository(val dataSource: DataSource) {
         }
     }
 
+    fun updateRiskReport(
+        report: OutgoingData, editDate: Instant
+    ) {
+        using(sessionOf(no.nav.fjernlys.dataSource)) { session ->
 
-    data class RiskReportId(
-        val id: String
-    )
+            val sql = """
+            UPDATE risk_report
+            SET is_owner = ?, owner_ident = ?, service_name = ?, report_edited = ?
+            WHERE id = ?
+        """.trimIndent()
+
+            session.run(
+                queryOf(
+                    sql, report.isOwner, report.ownerIdent, report.serviceName, editDate.toJavaInstant(), report.id
+                ).asUpdate
+            )
+        }
+
+
+    }
 
 
 }

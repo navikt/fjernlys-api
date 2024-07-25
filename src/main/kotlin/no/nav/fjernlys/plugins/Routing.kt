@@ -73,55 +73,6 @@ fun Application.configureRouting(dataSource: DataSource) {
         UpdateRiskLevelData(dataSource).updateRiskLevelByService(serviceName)
     }
 
-    fun getAllReports(service: String): String {
-        val riskReportRepository = RiskReportRepository(dataSource)
-        val riskAssessmentRepository = RiskAssessmentRepository(dataSource)
-        val riskMeasureRepository = RiskMeasureRepository(dataSource)
-
-        val reportList = riskReportRepository.getAllRiskReportsByService(service)
-
-        val result = reportList.map { report ->
-            val riskAssessmentList = riskAssessmentRepository.getRiskAssessmentFromReportId(report.id)
-
-            val riskValues = riskAssessmentList.map { assessment ->
-                val riskMeasureList = riskMeasureRepository.getRiskMeasureFromAssessmentId(assessment.id)
-
-                val measureValuesOut = riskMeasureList.map { measure ->
-                    MeasureValueOut(
-                        id = measure.id,
-                        riskAssessmentId = measure.riskAssessmentId,
-                        category = measure.category,
-                        status = measure.status,
-                    )
-                }
-
-                RiskValueOut(
-                    id = assessment.id,
-                    probability = assessment.probability.toDouble(),
-                    consequence = assessment.consequence.toDouble(),
-                    dependent = assessment.dependent,
-                    riskLevel = assessment.riskLevel,
-                    category = assessment.category,
-                    measureValues = measureValuesOut,
-                    newConsequence = assessment.newConsequence?.toDouble(),
-                    newProbability = assessment.newProbability?.toDouble()
-                )
-            }
-
-            OutgoingData(
-                id = report.id,
-                isOwner = report.isOwner,
-                ownerIdent = report.ownerIdent,
-                serviceName = report.serviceName,
-                riskValues = riskValues,
-                reportCreated = report.reportCreated,
-                reportEdited = report.reportEdited
-            )
-        }
-
-        return Json.encodeToString(result)
-    }
-
 
     routing {
         health()
@@ -129,11 +80,24 @@ fun Application.configureRouting(dataSource: DataSource) {
 //---------- API call for submitting a form ----------
         post("/submit") {
             try {
-                val postData = call.receive<IncomingData>()
-                println("Received data: $postData")
-                incomingData = postData
+                val newReport = call.receive<IncomingData>()
+                println("Received data: $newReport")
                 call.respond(HttpStatusCode.OK, mapOf("message" to "Data received successfully"))
-                test()
+                AccessReports(dataSource).insertNewReport(newReport)
+
+            } catch (e: Exception) {
+                e.printStackTrace()
+            }
+        }
+
+        //---------- API call for editing a form ----------
+        post("/submit/edit") {
+            try {
+                val editedReport = call.receive<OutgoingData>()
+
+                call.respond(HttpStatusCode.OK, mapOf("message" to "Data received successfully"))
+                println(editedReport)
+                AccessReports(dataSource).updateReportEdit(editedReport)
 
             } catch (e: Exception) {
                 e.printStackTrace()

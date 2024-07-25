@@ -100,10 +100,3 @@ data class RiskLevelCounts(
     var moderate: Int = 0,
     var low: Int = 0
 )
-
-@Serializable
-data class RiskLevelCountNorsk(
-    var Høy: Int = 0,
-    var Moderat: Int = 0,
-    var Lav: Int = 0
-)

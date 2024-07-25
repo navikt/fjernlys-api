@@ -41,6 +41,7 @@ class HistoryRiskReportRepository(val dataSource: DataSource) {
             SELECT * 
             FROM history_risk_report 
             WHERE report_id = :reportId
+            ORDER BY report_edited DESC;
         """.trimIndent()
 
         return using(sessionOf(dataSource)) { session ->

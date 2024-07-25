@@ -1,12 +1,13 @@
 package no.nav.fjernlys.functions
 
+import kotlinx.datetime.Clock
+import kotlinx.datetime.Instant
 import kotlinx.serialization.encodeToString
 import kotlinx.serialization.json.Json
+import no.nav.fjernlys.dataSource
 import no.nav.fjernlys.dbQueries.*
-import no.nav.fjernlys.plugins.MeasureValueOut
-import no.nav.fjernlys.plugins.OutgoingData
-import no.nav.fjernlys.plugins.RiskReportData
-import no.nav.fjernlys.plugins.RiskValueOut
+import no.nav.fjernlys.plugins.*
+import java.util.*
 import javax.sql.DataSource
 
 class AccessReports(dataSource: DataSource) {
@@ -145,6 +146,71 @@ class AccessReports(dataSource: DataSource) {
             reportEdited = report.reportEdited
         )
         return Json.encodeToString(result)
+    }
+
+    fun insertNewReport(incomingData: IncomingData) {
+        val currentMoment: Instant = Clock.System.now()
+        val date: Instant = currentMoment
+        var serviceName = ""
+
+        val reportId = UUID.randomUUID().toString()
+
+        riskReportRepository.insertIntoRiskReport(
+            reportId, incomingData.ownerData, incomingData.notOwnerData, incomingData.serviceData, date, date
+        )
+        serviceName = incomingData.serviceData
+
+        incomingData.riskValues.forEach { riskValue ->
+            val riskAssessmentId = UUID.randomUUID().toString() // Generate or fetch a meaningful ID
+
+            riskAssessmentRepository.insertIntoRiskAssessment(
+                id = riskAssessmentId,
+                reportId = reportId,
+                probability = riskValue.probability,
+                consequence = riskValue.consequence,
+                dependent = riskValue.dependent,
+                riskLevel = riskValue.riskLevel,
+                category = riskValue.category,
+                newProbability = riskValue.newProbability,
+                newConsequence = riskValue.newConsequence
+            )
+
+            riskValue.measureValues?.forEach { measureValue ->
+                val measureId = UUID.randomUUID().toString() // Generate or fetch a meaningful ID
+
+                riskMeasureRepository.insertIntoRiskMeasure(
+                    id = measureId,
+                    riskAssessmentId = riskAssessmentId,
+                    measureCategory = measureValue.category,
+                    measureStatus = measureValue.status,
+
+                    )
+            }
+        }
+        UpdateHistoryTables(dataSource).updateHistoryReport(reportId)
+        UpdateRiskLevelData(dataSource).updateRiskLevelByService(serviceName)
+    }
+
+    fun updateReportEdit(editedReport: OutgoingData) {
+        val currentMoment: Instant = Clock.System.now()
+        val editDate: Instant = currentMoment
+
+
+        riskReportRepository.updateRiskReport(
+            editedReport, editDate
+        )
+
+        editedReport.riskValues?.forEach { riskValue ->
+            riskAssessmentRepository.updateRiskAssessment(riskValue)
+
+            riskValue.measureValues?.forEach { measureValue ->
+                val measureId = UUID.randomUUID().toString() // Generate or fetch a meaningful ID
+
+                riskMeasureRepository.updateRiskMeasure(measureValue)
+            }
+        }
+        UpdateHistoryTables(dataSource).updateHistoryReport(editedReport.id)
+        UpdateRiskLevelData(dataSource).updateRiskLevelByService(editedReport.serviceName)
     }
 
 }

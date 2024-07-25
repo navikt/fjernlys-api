@@ -8,6 +8,7 @@ import no.nav.fjernlys.NaisEnvironment
 import no.nav.fjernlys.createDataSource
 import no.nav.fjernlys.plugins.MeasureValue
 import no.nav.fjernlys.plugins.MeasureValueOut
+import no.nav.fjernlys.plugins.RiskValueOut
 import javax.sql.DataSource
 
 class RiskMeasureRepository(val dataSource: DataSource) {
@@ -77,6 +78,28 @@ class RiskMeasureRepository(val dataSource: DataSource) {
                         )
                     }
                     .asList
+            )
+        }
+    }
+
+    fun updateRiskMeasure(
+        measureValues: MeasureValueOut
+    ) {
+        using(sessionOf(no.nav.fjernlys.dataSource)) { session ->
+
+            val sql = """
+            UPDATE risk_measure
+            SET measure_category = ?, measure_status = ?
+            WHERE id = ?
+        """.trimIndent()
+
+            session.run(
+                queryOf(
+                    sql,
+                    measureValues.category,
+                    measureValues.status,
+                    measureValues.id
+                ).asUpdate
             )
         }
     }

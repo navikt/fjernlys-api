@@ -35,6 +35,7 @@ class AccessReports(dataSource: DataSource) {
                 }
                 RiskValueOut(
                     id = assessment.id,
+                    reportId = assessment.reportId,
                     probability = assessment.probability.toDouble(),
                     consequence = assessment.consequence.toDouble(),
                     dependent = assessment.dependent,
@@ -78,6 +79,7 @@ class AccessReports(dataSource: DataSource) {
                 }
                 RiskValueOut(
                     id = historyAssessment.id,
+                    reportId = historyAssessment.reportId,
                     probability = historyAssessment.probability.toDouble(),
                     consequence = historyAssessment.consequence.toDouble(),
                     dependent = historyAssessment.dependent,
@@ -125,6 +127,7 @@ class AccessReports(dataSource: DataSource) {
 
             RiskValueOut(
                 id = assessment.id,
+                reportId = assessment.reportId.toString(),
                 probability = assessment.probability.toDouble(),
                 consequence = assessment.consequence.toDouble(),
                 dependent = assessment.dependent,
@@ -191,7 +194,7 @@ class AccessReports(dataSource: DataSource) {
         UpdateRiskLevelData(dataSource).updateRiskLevelByService(serviceName)
     }
 
-    fun updateReportEdit(editedReport: OutgoingData) {
+    fun updateReportEdit(editedReport: EditedReport) {
         val currentMoment: Instant = Clock.System.now()
         val editDate: Instant = currentMoment
 
@@ -200,17 +203,70 @@ class AccessReports(dataSource: DataSource) {
             editedReport, editDate
         )
 
+        val existingRisks = riskAssessmentRepository.getRiskAssessmentFromReportId(editedReport.id)
+        val existingRisksId = existingRisks.map { it.id }.toSet()
+
+        val editedRisks = editedReport.riskValues ?: emptyList()
+        val editedRisksIds = editedRisks.map { it.id }.toSet()
+
+        val risksToDelete = existingRisks.filter { it.id !in editedRisksIds }
+        risksToDelete.forEach { risk ->
+            riskAssessmentRepository.deleteRiskById(risk.id)
+            riskMeasureRepository.deleteMeasuresByRiskId(risk.id)
+        }
+
         editedReport.riskValues?.forEach { riskValue ->
-            riskAssessmentRepository.updateRiskAssessment(riskValue)
-
-            riskValue.measureValues?.forEach { measureValue ->
-                val measureId = UUID.randomUUID().toString() // Generate or fetch a meaningful ID
-
-                riskMeasureRepository.updateRiskMeasure(measureValue)
+            val assessmentId = riskValue.id ?: UUID.randomUUID().toString()
+            if (riskValue.id == null) {
+                RiskAssessmentRepository(dataSource).insertIntoRiskAssessment(
+                    assessmentId,
+                    riskValue.reportId,
+                    riskValue.probability,
+                    riskValue.consequence,
+                    riskValue.dependent,
+                    riskValue.riskLevel,
+                    riskValue.category,
+                    riskValue.newProbability,
+                    riskValue.newConsequence
+                )
+                updateMeasureValues(riskValue.measureValues, assessmentId)
+            } else {
+                riskAssessmentRepository.updateRiskAssessment(riskValue)
+                updateMeasureValues(riskValue.measureValues, assessmentId)
             }
         }
         UpdateHistoryTables(dataSource).updateHistoryReport(editedReport.id)
         UpdateRiskLevelData(dataSource).updateRiskLevelByService(editedReport.serviceName)
+    }
+
+    fun updateMeasureValues(measureValue: List<MeasureValueOut>?, assessmentId: String) {
+        if (measureValue != null) {
+
+            val existingMeasures = riskMeasureRepository.getRiskMeasureFromAssessmentId(assessmentId)
+            val existingMeasuresIds = existingMeasures.map { it.id }.toSet()
+
+            val editedMeasuresIds = measureValue.map { it.id }.toSet()
+
+            val measuresToDelete = existingMeasures.filter { it.id !in editedMeasuresIds }
+            measuresToDelete.forEach { measure ->
+                measure.id?.let { riskMeasureRepository.deleteMeasuresByMeasureId(it) }
+            }
+
+
+            measureValue.forEach { measure ->
+                val measureId = measure.id ?: UUID.randomUUID().toString()
+                if (measure.id == null) {
+                    RiskMeasureRepository(dataSource).insertIntoRiskMeasure(
+                        measureId,
+                        assessmentId,
+                        measure.category,
+                        measure.status
+                    )
+                } else {
+                    riskMeasureRepository.updateRiskMeasure(measure)
+                }
+            }
+        }
     }
 
 }

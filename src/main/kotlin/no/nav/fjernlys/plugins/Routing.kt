@@ -90,10 +90,10 @@ fun Application.configureRouting(dataSource: DataSource) {
             }
         }
 
-        //---------- API call for editing a form ----------
+//---------- API call for editing a form ----------
         post("/submit/edit") {
             try {
-                val editedReport = call.receive<OutgoingData>()
+                val editedReport = call.receive<EditedReport>()
 
                 call.respond(HttpStatusCode.OK, mapOf("message" to "Data received successfully"))
                 println(editedReport)

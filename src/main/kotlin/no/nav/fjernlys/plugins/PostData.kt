@@ -12,8 +12,8 @@ data class MeasureValue(
 
 @Serializable
 data class MeasureValueOut(
-    val id: String?,
-    val riskAssessmentId: String?,
+    val id: String? = null,
+    val riskAssessmentId: String? = null,
     val category: String,
     val status: String,
 )
@@ -42,12 +42,13 @@ data class IncomingData(
 @Serializable
 data class RiskValueOut(
     val id: String,
+    val reportId: String,
     val probability: Double,
     val consequence: Double,
     val dependent: Boolean,
     val riskLevel: String,
     val category: String,
-    val measureValues: List<MeasureValueOut>?,
+    val measureValues: List<MeasureValueOut>,
     val newConsequence: Double? = null,
     val newProbability: Double? = null
 )
@@ -100,3 +101,29 @@ data class RiskLevelCounts(
     var moderate: Int = 0,
     var low: Int = 0
 )
+
+@Serializable
+data class EditedReport(
+    val id: String,
+    val isOwner: Boolean,
+    val ownerIdent: String,
+    val serviceName: String,
+    val riskValues: List<EditedRiskAssessment>?,
+    val reportCreated: Instant,
+    val reportEdited: Instant
+)
+
+@Serializable
+data class EditedRiskAssessment(
+    val id: String? = null,
+    val reportId: String,
+    val probability: Double,
+    val consequence: Double,
+    val dependent: Boolean,
+    val riskLevel: String,
+    val category: String,
+    val measureValues: List<MeasureValueOut>?,
+    val newConsequence: Double?,
+    val newProbability: Double?,
+)
+

@@ -82,6 +82,35 @@ class RiskMeasureRepository(val dataSource: DataSource) {
         }
     }
 
+    fun deleteMeasuresByRiskId(risk_assessment_id: String) {
+        using(sessionOf(dataSource)) { session ->
+
+            val sql = """
+            DELETE FROM risk_measure
+            WHERE risk_assessment_id = ?
+        """.trimIndent()
+
+            session.run(
+                queryOf(sql, risk_assessment_id).asUpdate
+            )
+        }
+    }
+
+    fun deleteMeasuresByMeasureId(measureId: String) {
+        using(sessionOf(dataSource)) { session ->
+
+            val sql = """
+            DELETE FROM risk_measure
+            WHERE id = ?
+        """.trimIndent()
+
+            session.run(
+                queryOf(sql, measureId).asUpdate
+            )
+        }
+    }
+
+
     fun updateRiskMeasure(
         measureValues: MeasureValueOut
     ) {

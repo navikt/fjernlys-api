@@ -5,10 +5,7 @@ import kotliquery.Row
 import kotliquery.queryOf
 import kotliquery.sessionOf
 import kotliquery.using
-import no.nav.fjernlys.plugins.MeasureValue
-import no.nav.fjernlys.plugins.OutgoingData
-import no.nav.fjernlys.plugins.RiskValue
-import no.nav.fjernlys.plugins.RiskValueOut
+import no.nav.fjernlys.plugins.*
 import javax.sql.DataSource
 
 class RiskAssessmentRepository(val dataSource: DataSource) {
@@ -16,7 +13,7 @@ class RiskAssessmentRepository(val dataSource: DataSource) {
 
     fun insertIntoRiskAssessment(
         id: String,
-        reportId: String,
+        reportId: String?,
         probability: Number,
         consequence: Number,
         dependent: Boolean,
@@ -105,7 +102,7 @@ class RiskAssessmentRepository(val dataSource: DataSource) {
     }
 
     fun updateRiskAssessment(
-        riskValue: RiskValueOut
+        riskValue: EditedRiskAssessment
     ) {
         using(sessionOf(no.nav.fjernlys.dataSource)) { session ->
 
@@ -131,6 +128,21 @@ class RiskAssessmentRepository(val dataSource: DataSource) {
             )
         }
     }
+
+    fun deleteRiskById(riskId: String) {
+        using(sessionOf(dataSource)) { session ->
+
+            val sql = """
+            DELETE FROM risk_assessment
+            WHERE id = ?
+        """.trimIndent()
+
+            session.run(
+                queryOf(sql, riskId).asUpdate
+            )
+        }
+    }
+
 
     data class RiskAssessmentData(
         val id: String,

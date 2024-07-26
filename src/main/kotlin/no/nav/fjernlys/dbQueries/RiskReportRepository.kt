@@ -5,6 +5,7 @@ import kotlinx.datetime.toJavaInstant
 import kotliquery.queryOf
 import kotliquery.sessionOf
 import kotliquery.using
+import no.nav.fjernlys.plugins.EditedReport
 import javax.sql.DataSource
 import no.nav.fjernlys.plugins.OutgoingData
 import no.nav.fjernlys.plugins.RiskReportData
@@ -123,7 +124,7 @@ class RiskReportRepository(val dataSource: DataSource) {
     }
 
     fun updateRiskReport(
-        report: OutgoingData, editDate: Instant
+        report: EditedReport, editDate: Instant
     ) {
         using(sessionOf(no.nav.fjernlys.dataSource)) { session ->
 

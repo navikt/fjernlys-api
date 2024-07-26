@@ -10,7 +10,9 @@ import kotlinx.datetime.*
 import kotlinx.serialization.encodeToString
 import kotlinx.serialization.json.Json
 import no.nav.fjernlys.dbQueries.*
+import no.nav.fjernlys.functions.UpdateCategoryTable
 import no.nav.fjernlys.functions.UpdateRiskLevelData
+import no.nav.fjernlys.functions.UpdateRiskProbConsTable
 import java.util.UUID
 import javax.sql.DataSource
 
@@ -132,6 +134,9 @@ fun Application.configureRouting(dataSource: DataSource) {
                 call.respond(HttpStatusCode.OK, mapOf("message" to "Data received successfully"))
                 test()
 
+//                Update risk_category_table when a new form is submitted
+                UpdateCategoryTable(dataSource).updateAllCategoriesCount()
+
             } catch (e: Exception) {
                 e.printStackTrace()
             }
@@ -236,6 +241,47 @@ fun Application.configureRouting(dataSource: DataSource) {
 
                 call.respond(HttpStatusCode.OK, riskLevels)
 
+
+            } catch (e: Exception) {
+                e.printStackTrace()
+                call.respond(HttpStatusCode.InternalServerError, "An error occurred: ${e.message}")
+            }
+        }
+        get("/get/risk-category") {
+            try {
+
+//                Send by category
+//                val riskCategoryName = call.request.queryParameters["category"]
+//                    ?: throw IllegalArgumentException("Missing parameter: category")
+//                val selectedData = RiskCategoryRepository(dataSource).getDependentByCategoryName(riskCategoryName)
+
+//                Send all
+                val sendAll = RiskCategoryRepository(dataSource).getAll()
+
+//                val category = RiskCategoryRepository(dataSource).getAll()
+
+
+
+                call.respond(HttpStatusCode.OK, sendAll)
+
+            } catch(e: Exception) {
+                e.printStackTrace()
+                call.respond(HttpStatusCode.InternalServerError, "An error occurred: ${e.message}")
+
+            }
+        }
+        get("/get/risk-probability-consequence") {
+            try {
+                val updateRiskProbCons = UpdateRiskProbConsTable(dataSource)
+                val riskProbConsRepository = RiskProbConsRepository(dataSource)
+                val halla = updateRiskProbCons.updateRiskProbConsTable()
+                println(halla)
+
+                val responseData = riskProbConsRepository.getAllFromProbConsTable()
+
+                // Mocked data for response, ensuring it's in JSON format
+
+                call.respond(HttpStatusCode.OK, responseData)
 
             } catch (e: Exception) {
                 e.printStackTrace()

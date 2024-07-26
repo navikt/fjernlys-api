@@ -82,8 +82,8 @@ data class RiskAssessmentData(
     val dependent: Boolean,
     val riskLevel: String,
     val category: String,
-    val newConsequence: Double?,
     val newProbability: Double?,
+    val newConsequence: Double?
 )
 
 @Serializable
@@ -106,4 +106,23 @@ data class RiskLevelCountNorsk(
     var Høy: Int = 0,
     var Moderat: Int = 0,
     var Lav: Int = 0
+)
+
+@Serializable
+data class RiskCategoryCounts (
+    var category: String,
+    var dependent: Int = 0,
+    var notDependent: Int = 0,
+    var totalRisk: Int = 0,
+)
+
+
+@Serializable
+data class RiskProbCons(
+    val categoryName: String,
+    val probability: Double,
+    val consequence: Double,
+    val newProbability: Double?,
+    val newConsequence: Double?,
+    val totalRisksPerCategory: Int,
 )

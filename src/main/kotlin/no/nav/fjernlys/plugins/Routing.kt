@@ -260,9 +260,8 @@ fun Application.configureRouting(dataSource: DataSource) {
 
 //                val category = RiskCategoryRepository(dataSource).getAll()
 
-
-
                 call.respond(HttpStatusCode.OK, sendAll)
+
 
             } catch(e: Exception) {
                 e.printStackTrace()
@@ -273,14 +272,10 @@ fun Application.configureRouting(dataSource: DataSource) {
         get("/get/risk-probability-consequence") {
             try {
                 val updateRiskProbCons = UpdateRiskProbConsTable(dataSource)
-                val riskProbConsRepository = RiskProbConsRepository(dataSource)
-                val halla = updateRiskProbCons.updateRiskProbConsTable()
-                println(halla)
 
-                val responseData = riskProbConsRepository.getAllFromProbConsTable()
-
-                // Mocked data for response, ensuring it's in JSON format
-
+                // Henter Liste Prob Cons values fra risk_prob_cons_table
+                updateRiskProbCons.updateRiskProbConsTable()
+                val responseData = updateRiskProbCons.calculateRiskProbConsValues()
                 call.respond(HttpStatusCode.OK, responseData)
 
             } catch (e: Exception) {

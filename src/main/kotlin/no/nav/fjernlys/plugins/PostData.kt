@@ -126,3 +126,11 @@ data class RiskProbCons(
     val newConsequence: Double?,
     val totalRisksPerCategory: Int,
 )
+
+@Serializable
+data class RiskProbConsCalculatedValues (
+    val categoryName: String,
+    val prob: Double,
+    val cons: Double,
+    val totalRisks: Int
+)

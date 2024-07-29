@@ -11,7 +11,7 @@ import java.util.UUID
 
 class HistoryRiskReportRepository(val dataSource: DataSource) {
 
-    fun getLastEditedRiskReport(id: String): RiskReportData? {
+    fun getLastEditedRiskReport(id: String): RiskReportData {
         val sql = """
             SELECT * 
             FROM risk_report 
@@ -32,11 +32,37 @@ class HistoryRiskReportRepository(val dataSource: DataSource) {
                         )
                     }
                     .asSingle
+            )!!
+        }
+    }
+
+    fun getAllHistoryReports(reportId: String): List<RiskReportData> {
+        val sql = """
+            SELECT * 
+            FROM history_risk_report 
+            WHERE report_id = :reportId
+            ORDER BY report_edited DESC;
+        """.trimIndent()
+
+        return using(sessionOf(dataSource)) { session ->
+            session.run(
+                queryOf(sql, mapOf("reportId" to reportId))
+                    .map { row ->
+                        RiskReportData(
+                            id = row.string("id"),
+                            isOwner = row.boolean("is_owner"),
+                            ownerIdent = row.string("owner_ident"),
+                            serviceName = row.string("service_name"),
+                            reportCreated = Instant.fromEpochMilliseconds(row.sqlTimestamp("report_created").time),
+                            reportEdited = Instant.fromEpochMilliseconds(row.sqlTimestamp("report_edited").time)
+                        )
+                    }
+                    .asList
             )
         }
     }
 
-    fun insertLastEntryIntoRiskReportHistory(reportData: RiskReportData, newId: String): Boolean {
+    fun insertLastEntryIntoRiskReportHistory(reportData: RiskReportData, newId: String) {
         val sql = """
             INSERT INTO history_risk_report
             (id, report_id, is_owner, owner_ident, service_name, report_created, report_edited)
@@ -56,7 +82,7 @@ class HistoryRiskReportRepository(val dataSource: DataSource) {
                     reportData.reportEdited.toJavaInstant()
                 ).asUpdate
             )
-            result > 0
+
         }
     }
 }

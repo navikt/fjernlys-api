@@ -60,6 +60,7 @@ class RiskReportReceiveTest {
           "riskValues": [
             {
               "id": "e0cba3d7-1870-4d53-b817-ac00e2b01e75",
+              "reportId": "1337ef71-5dd4-4933-a9a7-d6bd748465a7",
               "probability": 2,
               "consequence": 2,
               "dependent": false,
@@ -110,9 +111,9 @@ class RiskReportReceiveTest {
 
         riskReportRepository.insertIntoRiskReport(
             incomingData.id,
-            incomingData!!.isOwner,
-            incomingData!!.ownerIdent,
-            incomingData!!.serviceName,
+            incomingData.isOwner,
+            incomingData.ownerIdent,
+            incomingData.serviceName,
             incomingData.reportCreated,
             incomingData.reportEdited
         )
@@ -135,7 +136,7 @@ class RiskReportReceiveTest {
                 newConsequence = riskValue.newConsequence
             )
 
-            riskValue.measureValues?.forEach { measureValue ->
+            riskValue.measureValues.forEach { measureValue ->
 
                 measureValue.id?.let {
                     riskMeasureRepository.insertIntoRiskMeasure(

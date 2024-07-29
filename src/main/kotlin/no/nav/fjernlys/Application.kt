@@ -9,6 +9,8 @@ import io.ktor.server.netty.Netty
 import no.nav.fjernlys.plugins.configureRouting
 import no.nav.fjernlys.plugins.configureSecurity
 import io.ktor.server.plugins.cors.routing.CORS
+import io.ktor.server.plugins.statuspages.*
+import io.ktor.server.response.*
 import kotlinx.serialization.json.Json
 
 //import io.ktor.features.StatusPages
@@ -33,6 +35,13 @@ fun Application.module() {
 //            call.respond(HttpStatusCode.InternalServerError, cause.localizedMessage)
 //        }
 //    }
+
+    install(StatusPages) {
+        exception<Throwable> { call, cause ->
+            call.application.log.error("Det har skjedd en feil: ${cause.message}", cause)
+            call.respond(HttpStatusCode.InternalServerError)
+        }
+    }
     configureRouting(dataSource = dataSource)
     install(CORS) {
         allowMethod(HttpMethod.Options)

@@ -23,57 +23,6 @@ import javax.sql.DataSource
 fun Application.configureRouting(dataSource: DataSource) {
 
 
-    var incomingData: IncomingData? = null
-
-    fun test() {
-        val currentMoment: Instant = Clock.System.now()
-        val date: Instant = currentMoment
-        val riskReportRepository = RiskReportRepository(dataSource)
-        val riskAssessmentRepository = RiskAssessmentRepository(dataSource)
-        val riskMeasureRepository = RiskMeasureRepository(dataSource)
-        var serviceName = ""
-
-        val reportId = UUID.randomUUID().toString()
-
-        if (incomingData != null) {
-            riskReportRepository.insertIntoRiskReport(
-                reportId, incomingData!!.ownerData, incomingData!!.notOwnerData, incomingData!!.serviceData, date, date
-            )
-            serviceName = incomingData!!.serviceData
-        }
-
-        incomingData?.riskValues?.forEach { riskValue ->
-            val riskAssessmentId = UUID.randomUUID().toString() // Generate or fetch a meaningful ID
-
-            riskAssessmentRepository.insertIntoRiskAssessment(
-                id = riskAssessmentId,
-                reportId = reportId,
-                probability = riskValue.probability,
-                consequence = riskValue.consequence,
-                dependent = riskValue.dependent,
-                riskLevel = riskValue.riskLevel,
-                category = riskValue.category,
-                newProbability = riskValue.newProbability,
-                newConsequence = riskValue.newConsequence
-            )
-
-            riskValue.measureValues?.forEach { measureValue ->
-                val measureId = UUID.randomUUID().toString() // Generate or fetch a meaningful ID
-
-                riskMeasureRepository.insertIntoRiskMeasure(
-                    id = measureId,
-                    riskAssessmentId = riskAssessmentId,
-                    measureCategory = measureValue.category,
-                    measureStatus = measureValue.status,
-
-                    )
-            }
-        }
-        UpdateHistoryTables(dataSource).updateHistoryReport(reportId)
-        UpdateRiskLevelData(dataSource).updateRiskLevelByService(serviceName)
-    }
-
-
     routing {
         health()
 
@@ -94,6 +43,17 @@ fun Application.configureRouting(dataSource: DataSource) {
         post("/submit/edit") {
             try {
                 val editedReport = call.receive<EditedReport>()
+                val isAnyFieldMissing = editedReport.riskValues?.any {
+                    it.measureValues.isNullOrEmpty() || it.measureValues.any { measureValue ->
+                        measureValue.category.isBlank() || measureValue.status.isBlank()
+                    } || it.newConsequence == null || it.newProbability == null
+                } == true
+
+                if (isAnyFieldMissing) {
+                    call.respond(HttpStatusCode.BadRequest, mapOf("message" to "Missing required fields"))
+                    return@post
+                }
+
 
                 call.respond(HttpStatusCode.OK, mapOf("message" to "Data received successfully"))
                 println(editedReport)
@@ -101,6 +61,10 @@ fun Application.configureRouting(dataSource: DataSource) {
 
             } catch (e: Exception) {
                 e.printStackTrace()
+                call.respond(
+                    HttpStatusCode.InternalServerError,
+                    mapOf("message" to "An error occurred while processing your request")
+                )
             }
         }
 //---------- API call for editing or ???? ----------

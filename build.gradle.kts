@@ -18,6 +18,36 @@ application {
     applicationDefaultJvmArgs = listOf("-Dio.ktor.development=$isDevelopment")
 }
 
+tasks {
+    withType<Test> {
+        useJUnitPlatform()
+        testLogging {
+            events("skipped", "failed")
+        }
+    }
+
+    jar {
+        archiveFileName.set("app.jar")
+
+        manifest {
+            attributes["Main-Class"] = "no.nav.ApplicationKt"
+            attributes["Class-Path"] = configurations.runtimeClasspath.get().joinToString(separator = " ") {
+                it.name
+            }
+        }
+
+        doLast {
+            configurations.runtimeClasspath.get()
+                .filter { it.name != "app.jar" }
+                .forEach {
+                    val file = File("$buildDir/libs/${it.name}")
+                    if (!file.exists())
+                        it.copyTo(file)
+                }
+        }
+    }
+}
+
 repositories {
     mavenCentral()
 }
@@ -60,8 +90,4 @@ dependencies {
     implementation("org.jetbrains.kotlinx:kotlinx-serialization-json:1.7.1")
     implementation("org.jetbrains.kotlinx:kotlinx-datetime:0.6.0")
 
-}
-
-tasks.test {
-    useJUnitPlatform()
 }

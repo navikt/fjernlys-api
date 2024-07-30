@@ -5,10 +5,10 @@ import io.ktor.server.response.*
 import io.ktor.server.routing.*
 
 fun Route.health() {
-    get("internal/isalive") {
+    get("isalive") {
         call.respond("OK")
     }
-    get("internal/isready") {
+    get("isready") {
         call.respond("OK")
     }
 }

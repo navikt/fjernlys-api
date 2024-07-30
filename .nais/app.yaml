@@ -6,7 +6,7 @@ metadata:
   labels:
     team: fjernlys
 spec:
-  image: { { image } }
+  image: {{ image }}
   port: 8080
   replicas:
     cpuThresholdPercentage: 90

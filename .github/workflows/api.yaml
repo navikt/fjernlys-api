@@ -16,7 +16,7 @@ jobs:
       - uses: actions/setup-java@v3
         with:
           distribution: temurin
-          java-version: 22.x
+          java-version: 21.x
           caching: gradle
       - name: Test and build
         run: ./gradlew build

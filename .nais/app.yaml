@@ -1,0 +1,37 @@
+apiVersion: nais.io/v1alpha1
+kind: Application
+metadata:
+  name: fjernlys-api
+  namespace: fjernlys
+  labels:
+    team: fjernlys
+spec:
+  image: { { image } }
+  port: 8080
+  replicas:
+    cpuThresholdPercentage: 90
+    min: 1
+    max: 1
+  liveness:
+    initialDelay: 30
+    path: isalive
+  readiness:
+    initialDelay: 30
+    path: isready
+  resources:
+    limits:
+      cpu: 400m
+      memory: 512Mi
+    requests:
+      cpu: 400m
+      memory: 512Mi
+  gcp:
+    sqlInstances:
+      - type: POSTGRES_14
+        databases:
+          - name: fjernlys-db
+            envVarPrefix: DB
+  accessPolicy:
+    inbound:
+      rules:
+        - application: fjernlys

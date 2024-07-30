@@ -10,7 +10,7 @@ import org.junit.jupiter.api.Test
 class HealthRouteTest {
     @Test
     fun `isAlive Test`() = testApplication {
-        client.get("/internal/isalive").apply {
+        client.get("/isalive").apply {
             assertEquals(HttpStatusCode.OK, status)
             assertEquals("OK", bodyAsText())
         }
@@ -18,7 +18,7 @@ class HealthRouteTest {
 
     @Test
     fun `isReady Test`() = testApplication {
-        client.get("/internal/isready").apply {
+        client.get("/isready").apply {
             assertEquals(HttpStatusCode.OK, status)
             assertEquals("OK", bodyAsText())
         }

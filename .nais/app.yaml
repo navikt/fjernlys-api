@@ -14,10 +14,10 @@ spec:
     max: 1
   liveness:
     initialDelay: 30
-    path: isalive
+    path: /internal/isalive
   readiness:
     initialDelay: 30
-    path: isready
+    path: /internal/isready
   resources:
     limits:
       cpu: 400m

@@ -2,7 +2,7 @@ name: Test and deploy API
 
 on:
   push:
-    branches: [ main, history_view ]
+    branches: [ main ]
 
 jobs:
   build:

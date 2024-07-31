@@ -1,12 +1,14 @@
 package no.nav.fjernlys.dbQueries
 
 import kotlinx.serialization.Serializable
+import kotlinx.datetime.Instant
 import kotliquery.Row
 import kotliquery.queryOf
 import kotliquery.sessionOf
 import kotliquery.using
 import no.nav.fjernlys.plugins.MeasureValue
 import no.nav.fjernlys.plugins.RiskAssessmentData
+import no.nav.fjernlys.plugins.*
 import javax.sql.DataSource
 
 class RiskAssessmentRepository(val dataSource: DataSource) {
@@ -14,7 +16,7 @@ class RiskAssessmentRepository(val dataSource: DataSource) {
 
     fun insertIntoRiskAssessment(
         id: String,
-        reportId: String,
+        reportId: String?,
         probability: Number,
         consequence: Number,
         dependent: Boolean,
@@ -102,6 +104,60 @@ class RiskAssessmentRepository(val dataSource: DataSource) {
         }
     }
 
+    fun updateRiskAssessment(
+        riskValue: EditedRiskAssessment
+    ) {
+        using(sessionOf(no.nav.fjernlys.dataSource)) { session ->
+
+            val sql = """
+            UPDATE risk_assessment
+            SET probability = ?, consequence = ?, dependent = ?,
+            risk_level = ?, category = ?, new_probability = ?, new_consequence = ?
+            WHERE id = ?
+        """.trimIndent()
+
+            session.run(
+                queryOf(
+                    sql,
+                    riskValue.probability,
+                    riskValue.consequence,
+                    riskValue.dependent,
+                    riskValue.riskLevel,
+                    riskValue.category,
+                    riskValue.newProbability,
+                    riskValue.newConsequence,
+                    riskValue.id
+                ).asUpdate
+            )
+        }
+    }
+
+    fun deleteRiskById(riskId: String) {
+        using(sessionOf(dataSource)) { session ->
+
+            val sql = """
+            DELETE FROM risk_assessment
+            WHERE id = ?
+        """.trimIndent()
+
+            session.run(
+                queryOf(sql, riskId).asUpdate
+            )
+        }
+    }
+
+
+    data class RiskAssessmentData(
+        val id: String,
+        val reportId: String,
+        val probability: Number,
+        val consequence: Number,
+        val dependent: Boolean,
+        val riskLevel: String,
+        val category: String,
+        val newProbability: Double?,
+        val newConsequence: Double?
+    )
 //    ----------------------------------------------------------
 
 
@@ -154,6 +210,7 @@ class RiskAssessmentRepository(val dataSource: DataSource) {
             newConsequence = row.double("new_consequence")
         )
     }
+
 }
 
 

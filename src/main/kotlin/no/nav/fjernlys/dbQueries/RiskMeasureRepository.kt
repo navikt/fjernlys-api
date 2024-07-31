@@ -8,6 +8,7 @@ import no.nav.fjernlys.NaisEnvironment
 import no.nav.fjernlys.createDataSource
 import no.nav.fjernlys.plugins.MeasureValue
 import no.nav.fjernlys.plugins.MeasureValueOut
+import no.nav.fjernlys.plugins.RiskValueOut
 import javax.sql.DataSource
 
 class RiskMeasureRepository(val dataSource: DataSource) {
@@ -77,6 +78,57 @@ class RiskMeasureRepository(val dataSource: DataSource) {
                         )
                     }
                     .asList
+            )
+        }
+    }
+
+    fun deleteMeasuresByRiskId(risk_assessment_id: String) {
+        using(sessionOf(dataSource)) { session ->
+
+            val sql = """
+            DELETE FROM risk_measure
+            WHERE risk_assessment_id = ?
+        """.trimIndent()
+
+            session.run(
+                queryOf(sql, risk_assessment_id).asUpdate
+            )
+        }
+    }
+
+    fun deleteMeasuresByMeasureId(measureId: String) {
+        using(sessionOf(dataSource)) { session ->
+
+            val sql = """
+            DELETE FROM risk_measure
+            WHERE id = ?
+        """.trimIndent()
+
+            session.run(
+                queryOf(sql, measureId).asUpdate
+            )
+        }
+    }
+
+
+    fun updateRiskMeasure(
+        measureValues: MeasureValueOut
+    ) {
+        using(sessionOf(no.nav.fjernlys.dataSource)) { session ->
+
+            val sql = """
+            UPDATE risk_measure
+            SET measure_category = ?, measure_status = ?
+            WHERE id = ?
+        """.trimIndent()
+
+            session.run(
+                queryOf(
+                    sql,
+                    measureValues.category,
+                    measureValues.status,
+                    measureValues.id
+                ).asUpdate
             )
         }
     }

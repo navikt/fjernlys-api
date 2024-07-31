@@ -8,11 +8,13 @@ import javax.sql.DataSource
 fun createDataSource(database: Database): DataSource {
     return HikariDataSource().apply {
         dataSourceClassName = PGSimpleDataSource::class.qualifiedName
-        addDataSourceProperty("serverName", database.host)
-        addDataSourceProperty("portNumber", database.port)
-        addDataSourceProperty("user", database.username)
-        addDataSourceProperty("password", database.password)
-        addDataSourceProperty("databaseName", database.name)
+        jdbcUrl = System.getenv("DB_JDBC_URL")
+//        addDataSourceProperty("jdbc", System.getenv("DB_JDBC_URL"))
+//        addDataSourceProperty("serverName", database.host)
+//        addDataSourceProperty("portNumber", database.port)
+//        addDataSourceProperty("user", database.username)
+//        addDataSourceProperty("password", database.password)
+//        addDataSourceProperty("databaseName", database.name)
         maximumPoolSize = 10
         minimumIdle = 1
         idleTimeout = 100000

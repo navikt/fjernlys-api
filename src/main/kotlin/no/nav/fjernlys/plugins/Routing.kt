@@ -247,6 +247,8 @@ fun Application.configureRouting(dataSource: DataSource) {
                 call.respond(HttpStatusCode.InternalServerError, "An error occurred: ${e.message}")
             }
         }
+
+
         get("/get/risk-category") {
             try {
 

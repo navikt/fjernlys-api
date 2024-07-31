@@ -22,11 +22,11 @@ class NaisEnvironment(
 }
 
 class Database(
-    val host: String = getEnvVar("NAIS_DATABASE_FJERNLYS_API_FJERNLYS_API_DB_HOST", "127.0.0.1"),
-    val port: String = getEnvVar("NAIS_DATABASE_FJERNLYS_API_FJERNLYS_API_DB_PORT", "5432"),
-    val username: String = getEnvVar("NAIS_DATABASE_FJERNLYS_API_FJERNLYS_API_DB_USERNAME", "postgres"),
-    val password: String = getEnvVar("NAIS_DATABASE_FJERNLYS_API_FJERNLYS_API_DB_PASSWORD", "test"),
-    val name: String = getEnvVar("NAIS_DATABASE_FJERNLYS_API_FJERNLYS_API_DB_DATABASE", "postgres")
+    val host: String = getEnvVar("DB_HOST", "127.0.0.1"),
+    val port: String = getEnvVar("DB_PORT", "5432"),
+    val username: String = getEnvVar("DB_USERNAME", "postgres"),
+    val password: String = getEnvVar("DB_PASSWORD", "test"),
+    val name: String = getEnvVar("DB_DATABASE", "postgres")
 )
 /*
 class Security(

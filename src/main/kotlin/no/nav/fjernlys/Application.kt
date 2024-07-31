@@ -19,7 +19,7 @@ val naisEnv = NaisEnvironment()
 val dataSource = createDataSource(database = naisEnv.database)
 fun main(args: Array<String>) {
 
-    //runMigration(dataSource = dataSource)
+    runMigration(dataSource = dataSource)
     embeddedServer(Netty, port = 8080, host = "0.0.0.0") {
         module()
     }.start(wait = true)

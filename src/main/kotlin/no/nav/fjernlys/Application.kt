@@ -6,7 +6,7 @@ import io.ktor.server.application.*
 import io.ktor.server.plugins.contentnegotiation.ContentNegotiation
 import io.ktor.server.engine.embeddedServer
 import io.ktor.server.netty.Netty
-//import no.nav.fjernlys.plugins.configureRouting
+import no.nav.fjernlys.plugins.configureRouting
 import no.nav.fjernlys.plugins.configureSecurity
 import io.ktor.server.plugins.cors.routing.CORS
 import io.ktor.server.plugins.statuspages.*
@@ -16,8 +16,7 @@ import kotlinx.serialization.json.Json
 //import io.ktor.features.StatusPages
 
 val naisEnv = NaisEnvironment()
-
-//val dataSource = createDataSource(database = naisEnv.database)
+val dataSource = createDataSource(database = naisEnv.database)
 fun main(args: Array<String>) {
 
     //runMigration(dataSource = dataSource)
@@ -43,7 +42,7 @@ fun Application.module() {
             call.respond(HttpStatusCode.InternalServerError)
         }
     }
-    //configureRouting(dataSource = dataSource)
+    configureRouting(dataSource = dataSource)
     install(CORS) {
         allowMethod(HttpMethod.Options)
         allowMethod(HttpMethod.Get)

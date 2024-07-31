@@ -3,7 +3,7 @@ package no.nav.fjernlys
 import java.net.URL
 
 class NaisEnvironment(
-    val database: Database = Database(),
+    //val database: Database = Database(),
     //val security: Security = Security(),
 
     //cluster: String = getEnvVar("NAIS_CLUSTER_NAME")

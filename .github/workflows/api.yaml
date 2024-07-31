@@ -1,0 +1,33 @@
+name: Test and deploy API
+
+on:
+  push:
+    branches: [ main ]
+
+jobs:
+  build:
+    name: Build, push and deploy Docker container
+    permissions:
+      contents: "read"
+      id-token: "write"
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-java@v3
+        with:
+          distribution: temurin
+          java-version: 21.x
+          caching: gradle
+      - name: Test and build
+        run: ./gradlew build
+      - uses: nais/docker-build-push@v0
+        id: docker-push
+        with:
+          team: fjernlys
+          identity_provider: ${{ secrets.NAIS_WORKLOAD_IDENTITY_PROVIDER }}
+          project_id: ${{ vars.NAIS_MANAGEMENT_PROJECT_ID }}
+      - uses: nais/deploy/actions/deploy@v2
+        env:
+          CLUSTER: dev-gcp
+          RESOURCE: .nais/app.yaml
+          VAR: image=${{ steps.docker-push.outputs.image }}

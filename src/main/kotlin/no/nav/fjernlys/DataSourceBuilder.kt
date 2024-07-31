@@ -13,6 +13,12 @@ fun createDataSource(database: Database): DataSource {
         addDataSourceProperty("user", database.username)
         addDataSourceProperty("password", database.password)
         addDataSourceProperty("databaseName", database.name)
+        if (System.getenv("NAIS_CLUSTER_NAME") == "dev-gcp") {
+            addDataSourceProperty("sslCert", System.getenv("DB_SSLCERT"))
+            addDataSourceProperty("sslKey", System.getenv("DB_SSLKEY_PK8"))
+            addDataSourceProperty("sslMode", System.getenv("DB_SSLMODE"))
+            addDataSourceProperty("sslRootCert", System.getenv("DB_SSLROOTCERT"))
+        }
         maximumPoolSize = 10
         minimumIdle = 1
         idleTimeout = 100000

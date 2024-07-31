@@ -30,6 +30,7 @@ spec:
       - type: POSTGRES_14
         databases:
           - name: "fjernlys-api-db"
+            envVarPrefix: DB
   accessPolicy:
     inbound:
       rules:

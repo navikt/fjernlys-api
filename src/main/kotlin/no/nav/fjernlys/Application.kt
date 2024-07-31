@@ -6,7 +6,7 @@ import io.ktor.server.application.*
 import io.ktor.server.plugins.contentnegotiation.ContentNegotiation
 import io.ktor.server.engine.embeddedServer
 import io.ktor.server.netty.Netty
-import no.nav.fjernlys.plugins.configureRouting
+//import no.nav.fjernlys.plugins.configureRouting
 import no.nav.fjernlys.plugins.configureSecurity
 import io.ktor.server.plugins.cors.routing.CORS
 import io.ktor.server.plugins.statuspages.*

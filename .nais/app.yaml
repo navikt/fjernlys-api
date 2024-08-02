@@ -25,6 +25,8 @@ spec:
     requests:
       cpu: 400m
       memory: 512Mi
+  ingresses:
+    - https://fjernlys-api.ekstern.dev.nav.no
   gcp:
     sqlInstances:
       - type: POSTGRES_14

@@ -162,6 +162,9 @@ fun Application.configureRouting(dataSource: DataSource) {
 //                    ?: throw IllegalArgumentException("Missing parameter: category")
 //                val selectedData = RiskCategoryRepository(dataSource).getDependentByCategoryName(riskCategoryName)
 
+//                Update new table
+                UpdateCategoryTable(dataSource).updateAllCategoriesCount()
+
 //                Send all
                 val sendAll = RiskCategoryRepository(dataSource).getAll()
 
@@ -190,6 +193,8 @@ fun Application.configureRouting(dataSource: DataSource) {
                 call.respond(HttpStatusCode.InternalServerError, "An error occurred: ${e.message}")
             }
         }
+
+        get()
     }
 }
 

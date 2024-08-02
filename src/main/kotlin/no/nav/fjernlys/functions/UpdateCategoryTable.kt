@@ -12,7 +12,7 @@ class UpdateCategoryTable(datasource: DataSource) {
     private val riskAssessmentRepository = RiskAssessmentRepository(datasource)
     private val riskCategoryRepository = RiskCategoryRepository(datasource)
 
-    fun updateAllCategoriesCount() {
+    fun () {
         val allCategories = riskCategoryRepository.getAllUniqueCategories()
         allCategories.forEach { category ->
             val categoryCounts = getCategoryCounts(category)

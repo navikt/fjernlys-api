@@ -35,8 +35,8 @@ class UpdateRiskProbConsTable(datasource: DataSource) {
     private fun getProbAndConValues(categoryName: String): RiskProbCons {
         return try {
             val categoryData = riskAssessmentRepository.getRiskAssessmentByCategory(categoryName)
-            val totalProbability = categoryData.sumOf { it.probability }
-            val totalConsequence = categoryData.sumOf { it.consequence }
+            val totalProbability = categoryData.sumOf { it.probability as Double? ?: 0.0 }
+            val totalConsequence = categoryData.sumOf { it.consequence as Double? ?: 0.0 }
             val totalNewProbability = categoryData.sumOf { it.newProbability ?: 0.0 }
             val totalNewConsequence = categoryData.sumOf { it.newConsequence ?: 0.0 }
             val totalRisksForCategory = categoryData.size

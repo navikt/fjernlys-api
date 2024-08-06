@@ -5,23 +5,16 @@ import io.ktor.server.application.*
 import io.ktor.server.request.*
 import io.ktor.server.response.*
 import io.ktor.server.routing.*
-import kotlinx.datetime.Clock
-import kotlinx.datetime.Instant
 import kotlinx.serialization.encodeToString
 import kotlinx.serialization.json.Json
 import no.nav.fjernlys.appstatus.health
-import no.nav.fjernlys.dbQueries.RiskAssessmentRepository
-import no.nav.fjernlys.dbQueries.RiskMeasureRepository
 import no.nav.fjernlys.dbQueries.RiskReportRepository
 import no.nav.fjernlys.functions.AccessReports
-import no.nav.fjernlys.functions.UpdateHistoryTables
 import no.nav.fjernlys.functions.UpdateRiskLevelData
-import java.util.*
 import javax.sql.DataSource
 
 
 fun Application.configureRouting(dataSource: DataSource) {
-
 
     routing {
         health()

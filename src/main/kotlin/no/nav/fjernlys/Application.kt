@@ -30,11 +30,6 @@ fun Application.module() {
     install(ContentNegotiation) {
         json()
     }
-//    install(StatusPages) {
-//        exception<Throwable> { cause ->
-//            call.respond(HttpStatusCode.InternalServerError, cause.localizedMessage)
-//        }
-//    }
 
     install(StatusPages) {
         exception<Throwable> { call, cause ->

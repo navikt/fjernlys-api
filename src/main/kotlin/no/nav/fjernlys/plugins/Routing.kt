@@ -15,7 +15,11 @@ import no.nav.fjernlys.dbQueries.RiskMeasureRepository
 import no.nav.fjernlys.dbQueries.RiskReportRepository
 import no.nav.fjernlys.functions.AccessReports
 import no.nav.fjernlys.functions.UpdateHistoryTables
+import no.nav.fjernlys.dbQueries.*
+import no.nav.fjernlys.functions.UpdateCategoryTable
 import no.nav.fjernlys.functions.UpdateRiskLevelData
+import no.nav.fjernlys.functions.UpdateRiskProbConsTable
+import java.util.UUID
 import java.util.*
 import javax.sql.DataSource
 
@@ -58,6 +62,9 @@ fun Application.configureRouting(dataSource: DataSource) {
                 call.respond(HttpStatusCode.OK, mapOf("message" to "Data received successfully"))
                 println(editedReport)
                 AccessReports(dataSource).updateReportEdit(editedReport)
+
+//                Update risk_category_table when a new form is submitted
+                UpdateCategoryTable(dataSource).updateAllCategoriesCount()
 
             } catch (e: Exception) {
                 e.printStackTrace()
@@ -139,6 +146,53 @@ fun Application.configureRouting(dataSource: DataSource) {
 
                 call.respond(HttpStatusCode.OK, riskLevels)
 
+
+            } catch (e: Exception) {
+                e.printStackTrace()
+                call.respond(HttpStatusCode.InternalServerError, "An error occurred: ${e.message}")
+            }
+        }
+
+
+        get("/get/risk-category") {
+            try {
+
+//                Send by category
+//                val riskCategoryName = call.request.queryParameters["category"]
+//                    ?: throw IllegalArgumentException("Missing parameter: category")
+//                val selectedData = RiskCategoryRepository(dataSource).getDependentByCategoryName(riskCategoryName)
+
+//                Update new table
+                UpdateCategoryTable(dataSource).updateAllCategoriesCount()
+
+//                Send all
+                val sendAll = RiskCategoryRepository(dataSource).getAll()
+
+//                val category = RiskCategoryRepository(dataSource).getAll()
+
+                call.respond(HttpStatusCode.OK, sendAll)
+
+
+            } catch(e: Exception) {
+                e.printStackTrace()
+                call.respond(HttpStatusCode.InternalServerError, "An error occurred: ${e.message}")
+
+            }
+        }
+        get("/get/risk-probability-consequence") {
+            try {
+                val updateRiskProbCons = UpdateRiskProbConsTable(dataSource)
+                val risky = RiskProbConsRepository(dataSource)
+
+                updateRiskProbCons.updateRiskProbConsTable()
+
+                val serviceName = call.request.queryParameters["service"]
+                    ?: throw IllegalArgumentException("Missing parameter: service")
+
+                val response = risky.getDataByService(serviceName)
+                println("HALLLLLAA" + response)
+
+                call.respond(HttpStatusCode.OK, response)
 
             } catch (e: Exception) {
                 e.printStackTrace()

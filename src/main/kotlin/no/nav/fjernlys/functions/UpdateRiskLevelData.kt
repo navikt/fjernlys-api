@@ -13,12 +13,14 @@ class UpdateRiskLevelData(datasource: DataSource) {
     fun getRiskLevelByService(serviceName: String): RiskLevelCounts {
         val report = RiskReportRepository(dataSource).getAllRiskReportsByService(serviceName)
         val riskAssessmentRepository = RiskAssessmentRepository(dataSource)
+        println("HERE IS THE REPORT " + report.toString())
         
         val riskLevelList = report.flatMap { reportEl ->
             riskAssessmentRepository.getRiskAssessmentFromReportId(reportEl.id)
         }.map { assessment ->
             assessment.riskLevel
         }
+        println("HERE IS THE RISKLEVELLIST" + riskLevelList.toString())
 
         val riskLevelCount = riskLevelList.groupingBy { it }.eachCount()
 

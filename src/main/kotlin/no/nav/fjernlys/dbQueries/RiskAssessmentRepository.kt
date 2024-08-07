@@ -185,7 +185,6 @@ class RiskAssessmentRepository(val dataSource: DataSource) {
         }
     }
 
-
     @Serializable
     data class CategoryDependentData(
         val categoryName: String,
@@ -193,24 +192,6 @@ class RiskAssessmentRepository(val dataSource: DataSource) {
         val notDependent: Int,
         val totalRisksPerCategory: Int,
     )
-
-
-
-    fun mapRowToRiskAssessment(row: Row): RiskAssessmentData {
-        // Convert a single row into a RisikoRapport object
-        return RiskAssessmentData(
-            id = row.string("id"),
-            reportId = row.string("report_id"),
-            probability = row.double("probability"),
-            consequence = row.double("consequence"),
-            dependent = row.boolean("dependent"),
-            riskLevel = row.string("risk_level"),
-            category = row.string("category"),
-            newProbability = row.double("new_probability"),
-            newConsequence = row.double("new_consequence")
-        )
-    }
-
 }
 
 

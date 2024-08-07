@@ -182,19 +182,23 @@ fun Application.configureRouting(dataSource: DataSource) {
         get("/get/risk-probability-consequence") {
             try {
                 val updateRiskProbCons = UpdateRiskProbConsTable(dataSource)
+                val risky = RiskProbConsRepository(dataSource)
 
-                // Henter Liste Prob Cons values fra risk_prob_cons_table
                 updateRiskProbCons.updateRiskProbConsTable()
-                val responseData = updateRiskProbCons.calculateRiskProbConsValues()
-                call.respond(HttpStatusCode.OK, responseData)
+
+                val serviceName = call.request.queryParameters["service"]
+                    ?: throw IllegalArgumentException("Missing parameter: service")
+
+                val response = risky.getDataByService(serviceName)
+                println("HALLLLLAA" + response)
+
+                call.respond(HttpStatusCode.OK, response)
 
             } catch (e: Exception) {
                 e.printStackTrace()
                 call.respond(HttpStatusCode.InternalServerError, "An error occurred: ${e.message}")
             }
         }
-
-        get()
     }
 }
 

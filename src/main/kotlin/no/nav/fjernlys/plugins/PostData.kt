@@ -147,6 +147,17 @@ data class RiskProbCons(
 )
 
 @Serializable
+data class RiskProbCons1(
+    val serviceName: String,
+    val categoryName: String,
+    val probability: Double,
+    val consequence: Double,
+    val newProbability: Double?,
+    val newConsequence: Double?,
+    val totalRisksPerCategory: Int,
+)
+
+@Serializable
 data class RiskProbConsCalculatedValues (
     val categoryName: String,
     val prob: Double,
@@ -159,5 +170,19 @@ data class RiskLevelCountNorsk(
     var Høy: Int = 0,
     var Moderat: Int = 0,
     var Lav: Int = 0
+)
+
+
+@Serializable
+data class RiskAssessment (
+    val id: String,
+    val reportId: String,
+    val probability: Double,
+    val consequence: Double,
+    val dependent: Boolean,
+    val riskLevel: String,
+    val category: String,
+    val newProbability: Double?,
+    val newConsequence: Double?,
 )
 

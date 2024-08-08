@@ -13,10 +13,9 @@ import no.nav.fjernlys.plugins.RiskReportData
 import org.junit.jupiter.api.*
 import testcontainers.TestContainersHelper
 
-val dataSource = TestContainersHelper.postgresContainer.dataSource
 
 class ReceiveRiskReportTest {
-
+    val dataSource = TestContainersHelper.postgresContainer.dataSource
 
     companion object {
         var reportId = ""
@@ -212,13 +211,15 @@ class ReceiveRiskReportTest {
 
 }
 
+val test = ReceiveRiskReportTest()
+
 fun initialDataInsertion(jsonString: String) {
     val report = Json.decodeFromString<IncomingData>(jsonString)
-    AccessReports(dataSource).insertNewReport(report)
+    AccessReports(test.dataSource).insertNewReport(report)
 }
 
 private fun clearDatabase() {
-    using(sessionOf(dataSource)) { session ->
+    using(sessionOf(test.dataSource)) { session ->
         val tables = listOf(
             "risk_measure", "risk_assessment", "risk_report"
         )

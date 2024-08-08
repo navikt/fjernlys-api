@@ -10,7 +10,11 @@ import org.testcontainers.containers.PostgreSQLContainer
 import org.testcontainers.containers.output.Slf4jLogConsumer
 import org.testcontainers.containers.wait.strategy.HostPortWaitStrategy
 
-class PostgrestContainerHelper(network: Network = Network.newNetwork(), log: Logger = LoggerFactory.getLogger(PostgrestContainerHelper::class.java)) {
+//TestContainer
+class PostgrestContainerHelper(
+    network: Network = Network.newNetwork(),
+    log: Logger = LoggerFactory.getLogger(PostgrestContainerHelper::class.java)
+) {
     private val postgresNetworkAlias = "postgrescontainer"
     private val databaseName = "fjernlys-container-db"
     private var mitegationIsDone = false

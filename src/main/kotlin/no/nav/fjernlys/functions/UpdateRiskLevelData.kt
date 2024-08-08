@@ -1,5 +1,6 @@
 package no.nav.fjernlys.functions
 
+import no.nav.fjernlys.dataSource
 import no.nav.fjernlys.dbQueries.RiskAssessmentRepository
 import no.nav.fjernlys.dbQueries.RiskLevelsRepository
 import no.nav.fjernlys.dbQueries.RiskReportRepository
@@ -7,12 +8,12 @@ import no.nav.fjernlys.plugins.RiskLevelCounts
 import no.nav.fjernlys.plugins.RiskLevelData
 import javax.sql.DataSource
 
-class UpdateRiskLevelData(val dataSource: DataSource) {
+class UpdateRiskLevelData(datasource: DataSource) {
 
     fun getRiskLevelByService(serviceName: String): RiskLevelCounts {
         val report = RiskReportRepository(dataSource).getAllRiskReportsByService(serviceName)
         val riskAssessmentRepository = RiskAssessmentRepository(dataSource)
-
+        
         val riskLevelList = report.flatMap { reportEl ->
             riskAssessmentRepository.getRiskAssessmentFromReportId(reportEl.id)
         }.map { assessment ->

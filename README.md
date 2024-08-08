@@ -1,5 +1,8 @@
 # Fjernlys-API
 
+Dette er backend-delen av prosjekt **Fjernlys**, en rapporteringsløsning for risikovurdering laget av sommerstudenter
+sommeren 2024.
+
 Applikasjonen er skrevet i **kotlin**, med **ktor** for API-kall, og en **postgres**-database
 
 ## Komme igang med Fjernlys-API

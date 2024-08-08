@@ -91,8 +91,8 @@ class HistoryRiskAssessmentRepository(val dataSource: DataSource) {
                             dependent = row.boolean("dependent"),
                             riskLevel = row.string("risk_level"),
                             category = row.string("category"),
-                            newProbability = row.double("new_consequence"),
-                            newConsequence = row.double("new_probability")
+                            newProbability = row.double("new_probability"),
+                            newConsequence = row.double("new_consequence")
                         )
                     }
                     .asList

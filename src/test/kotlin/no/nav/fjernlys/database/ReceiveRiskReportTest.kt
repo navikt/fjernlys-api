@@ -118,8 +118,8 @@ class ReceiveRiskReportTest {
         Assertions.assertFalse(result[0].dependent)
         Assertions.assertEquals("Lav", result[0].riskLevel)
         Assertions.assertEquals("Personvern og informasjonssikkerhet", result[0].category)
-        Assertions.assertEquals(2.0, result[0].newProbability)
-        Assertions.assertEquals(2.5, result[0].newConsequence)
+        Assertions.assertEquals(2.5, result[0].newProbability)
+        Assertions.assertEquals(2.0, result[0].newConsequence)
 
         `verify RiskMeasure`(assessmentId)
     }
@@ -188,8 +188,8 @@ class ReceiveRiskReportTest {
         Assertions.assertFalse(result[0].dependent)
         Assertions.assertEquals("Lav", result[0].riskLevel)
         Assertions.assertEquals("Personvern og informasjonssikkerhet", result[0].category)
-        Assertions.assertEquals(2.0, result[0].newProbability)
-        Assertions.assertEquals(2.5, result[0].newConsequence)
+        Assertions.assertEquals(2.5, result[0].newProbability)
+        Assertions.assertEquals(2.0, result[0].newConsequence)
 
         `verify historyRiskMeasure`(result[0].id)
     }

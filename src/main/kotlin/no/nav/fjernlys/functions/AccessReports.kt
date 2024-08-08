@@ -4,19 +4,19 @@ import kotlinx.datetime.Clock
 import kotlinx.datetime.Instant
 import kotlinx.serialization.encodeToString
 import kotlinx.serialization.json.Json
-import no.nav.fjernlys.dataSource
 import no.nav.fjernlys.dbQueries.*
 import no.nav.fjernlys.plugins.*
 import java.util.*
 import javax.sql.DataSource
 
-class AccessReports(dataSource: DataSource) {
-    private val riskReportRepository = RiskReportRepository(no.nav.fjernlys.dataSource)
-    private val riskAssessmentRepository = RiskAssessmentRepository(no.nav.fjernlys.dataSource)
-    private val riskMeasureRepository = RiskMeasureRepository(no.nav.fjernlys.dataSource)
-    private val HistoryRiskReportRepository = HistoryRiskReportRepository(no.nav.fjernlys.dataSource)
-    private val HistoryRiskAssessmentRepository = HistoryRiskAssessmentRepository(no.nav.fjernlys.dataSource)
-    private val HistoryRiskMeasureRepository = HistoryRiskMeasureRepository(no.nav.fjernlys.dataSource)
+class AccessReports(val dataSource: DataSource) {
+    private val riskReportRepository = RiskReportRepository(dataSource)
+    private val riskAssessmentRepository = RiskAssessmentRepository(dataSource)
+    private val riskMeasureRepository = RiskMeasureRepository(dataSource)
+    private val HistoryRiskReportRepository = HistoryRiskReportRepository(dataSource)
+    private val HistoryRiskAssessmentRepository = HistoryRiskAssessmentRepository(dataSource)
+    private val HistoryRiskMeasureRepository = HistoryRiskMeasureRepository(dataSource)
+
 
     private fun getAllCurrentReports(reportList: List<RiskReportData>): String {
         val result = reportList.map { report ->
@@ -158,10 +158,11 @@ class AccessReports(dataSource: DataSource) {
 
         val reportId = UUID.randomUUID().toString()
 
+
         riskReportRepository.insertIntoRiskReport(
-            reportId, incomingData.ownerData, incomingData.notOwnerData, incomingData.serviceData, date, date
+            reportId, incomingData.isOwner, incomingData.ownerIdent, incomingData.serviceName, date, date
         )
-        serviceName = incomingData.serviceData
+        serviceName = incomingData.serviceName
 
         incomingData.riskValues.forEach { riskValue ->
             val riskAssessmentId = UUID.randomUUID().toString() // Generate or fetch a meaningful ID
@@ -179,7 +180,7 @@ class AccessReports(dataSource: DataSource) {
             )
 
             riskValue.measureValues?.forEach { measureValue ->
-                val measureId = UUID.randomUUID().toString() // Generate or fetch a meaningful ID
+                val measureId = UUID.randomUUID().toString()
 
                 riskMeasureRepository.insertIntoRiskMeasure(
                     id = measureId,
@@ -192,6 +193,7 @@ class AccessReports(dataSource: DataSource) {
         }
         UpdateHistoryTables(dataSource).updateHistoryReport(reportId)
         UpdateRiskLevelData(dataSource).updateRiskLevelByService(serviceName)
+
     }
 
     fun updateReportEdit(editedReport: EditedReport) {

@@ -104,7 +104,7 @@ class RiskAssessmentRepository(val dataSource: DataSource) {
     fun updateRiskAssessment(
         riskValue: EditedRiskAssessment
     ) {
-        using(sessionOf(no.nav.fjernlys.dataSource)) { session ->
+        using(sessionOf(dataSource)) { session ->
 
             val sql = """
             UPDATE risk_assessment

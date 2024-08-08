@@ -3,13 +3,12 @@ package no.nav.fjernlys.dbQueries
 import kotliquery.queryOf
 import kotliquery.sessionOf
 import kotliquery.using
-import no.nav.fjernlys.dataSource
 import no.nav.fjernlys.plugins.MeasureValueOut
 import no.nav.fjernlys.plugins.RiskAssessmentData
 import java.util.*
 import javax.sql.DataSource
 
-class HistoryRiskMeasureRepository(val datasource: DataSource) {
+class HistoryRiskMeasureRepository(val dataSource: DataSource) {
 
     fun getLastEditedRiskMeasure(assessmentId: String): List<MeasureValueOut> {
         val sql = """

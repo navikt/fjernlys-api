@@ -3,11 +3,11 @@ package no.nav.fjernlys.dbQueries
 import kotliquery.queryOf
 import kotliquery.sessionOf
 import kotliquery.using
-import no.nav.fjernlys.dataSource
+
 import no.nav.fjernlys.plugins.RiskLevelData
 import javax.sql.DataSource
 
-class RiskLevelsRepository(dataSource: DataSource) {
+class RiskLevelsRepository(val dataSource: DataSource) {
 
 
     fun updateRiskLevel(

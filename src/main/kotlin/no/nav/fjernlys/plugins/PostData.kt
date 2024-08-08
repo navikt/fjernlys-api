@@ -32,9 +32,9 @@ data class RiskValue(
 
 @Serializable
 data class IncomingData(
-    val ownerData: Boolean,
-    val notOwnerData: String,
-    val serviceData: String,
+    val isOwner: Boolean,
+    val ownerIdent: String,
+    val serviceName: String,
     val riskValues: List<RiskValue>
 )
 

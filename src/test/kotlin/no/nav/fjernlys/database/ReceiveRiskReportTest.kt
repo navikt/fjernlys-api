@@ -70,6 +70,7 @@ class ReceiveRiskReportTest {
 
     @Test
     fun `verify RiskReport`() {
+        val dataSource = TestContainersHelper.postgresContainer.dataSource
         val result: List<RiskReportData> = RiskReportRepository(dataSource).getAllRiskReports()
         Assertions.assertNotNull(result)
         println(result)
@@ -141,7 +142,7 @@ class ReceiveRiskReportTest {
 
     @Test
     fun `verify HistoryReportInsert`() {
-
+        val dataSource = TestContainersHelper.postgresContainer.dataSource
         val resultString = AccessReports(dataSource).getAllHistoryReports(reportId)
 
         val result: List<EditedReport> = Json.decodeFromString(resultString)
